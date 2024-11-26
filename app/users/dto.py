@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, RootModel, model_validator
 
 
 class UserLoginDTO(BaseModel):
@@ -17,6 +17,9 @@ class UserReadDTO(BaseModel):
     id: int
     username: str
     email: EmailStr
+
+
+UsersListReadDTO = RootModel[list[UserReadDTO]]
 
 
 class UserCreateDTO(BaseModel):

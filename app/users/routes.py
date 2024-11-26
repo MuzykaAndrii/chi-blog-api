@@ -12,7 +12,7 @@ router = Blueprint("users", __name__, url_prefix="/users")
 @router.get("")
 def get_users_list():
     users = user_service.get_all_users()
-    return jsonify(users)
+    return JsonResponse(users.model_dump_json())
 
 
 @router.get("/<int:user_id>")

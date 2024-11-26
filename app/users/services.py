@@ -1,9 +1,8 @@
 from sqlalchemy.exc import IntegrityError
-from pydantic import TypeAdapter
 
 from app.users.pwd import PwdManagerMixin
 from app.users.dao import UserDAO
-from app.users.dto import UserCreateDTO, UserLoginDTO, UserReadDTO
+from app.users.dto import UserCreateDTO, UserLoginDTO, UserReadDTO, UsersListReadDTO
 from app.users.exceptions import (
     InvalidPassword,
     UserEmailAlreadyExists,
@@ -28,13 +27,10 @@ class UserService(PwdManagerMixin):
 
         return UserReadDTO.model_validate(user)
 
-    def get_all_users(self) -> list[UserReadDTO]:
+    def get_all_users(self) -> UsersListReadDTO:
         users = self._dao.get_all()
 
-        users_list_adapter = TypeAdapter(list[UserReadDTO])
-
-        # return [UserReadDTO(user) for user in users]
-        return users_list_adapter.validate_python(users)
+        return UsersListReadDTO(users)
 
     def get_by_credentials(self, credentials: UserLoginDTO) -> UserReadDTO:
         """Authenticates a user using their login credentials."""
