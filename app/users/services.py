@@ -26,7 +26,7 @@ class UserService(PwdManagerMixin):
         if not user:
             raise UserNotFound
 
-        return UserReadDTO(user)
+        return UserReadDTO.model_validate(user)
 
     def get_all_users(self) -> list[UserReadDTO]:
         users = self._dao.get_all()
