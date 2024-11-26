@@ -1,5 +1,19 @@
+from pydantic import ValidationError
+
+
 class UserError(Exception):
     """Base class for user errors"""
+
+
+class BookCreationError(UserError):
+    """Error raised when creating a new user throws validation error"""
+
+    def __init__(self, validation_error: ValidationError, **args):
+        super().__init__(*args)
+        self.validation_error = validation_error
+
+    def json(self):
+        return self.validation_error.json()
 
 
 class UserNotFound(UserError):

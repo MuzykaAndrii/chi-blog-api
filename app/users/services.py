@@ -49,14 +49,15 @@ class UserService(PwdManagerMixin):
 
         return UserReadDTO.model_validate(user)
 
-    def create(self, user_data: UserCreateDTO) -> UserReadDTO:
+    def create(self, user_data: dict) -> UserReadDTO:
         """Creates a new user with the provided registration data."""
 
-        user_data_dict = user_data.model_dump(exclude=["pwd1", "pwd2"])
-        user_data_dict["password_hash"] = self.gen_hash(user_data.pwd1)
+        user_model = UserCreateDTO(**user_data)
+        validated_user_data = user_model.model_dump(exclude=["pwd1", "pwd2"])
+        validated_user_data["password_hash"] = self.gen_hash(user_model.pwd1)
 
         try:
-            user = self._dao.create(**user_data_dict)
+            user = self._dao.create(**validated_user_data)
         except IntegrityError:
             # TODO: add error handler for username already exists
             raise UserEmailAlreadyExists
