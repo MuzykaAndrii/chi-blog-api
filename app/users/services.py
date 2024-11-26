@@ -20,6 +20,14 @@ class UserService(PwdManagerMixin):
     def __init__(self, user_dao: UserDAO) -> None:
         self._dao = user_dao
 
+    def get_user_by_id(self, user_id: int) -> UserReadDTO:
+        user = self._dao.get_one(user_id)
+
+        if not user:
+            raise UserNotFound
+
+        return UserReadDTO(user)
+
     def get_all_users(self) -> list[UserReadDTO]:
         users = self._dao.get_all()
 
