@@ -1,7 +1,7 @@
 from abc import ABC
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, Iterable, Sequence, TypeVar
 
-from sqlalchemy import delete, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from .base import Base
@@ -17,6 +17,12 @@ class BaseDAO(Generic[T], ABC):
 
     def __init__(self, session_factory: Callable[[], Session]) -> None:
         self._sf = session_factory
+
+    def get_all(self) -> Sequence[T]:
+        """Get all records"""
+
+        with self._sf() as session:
+            return session.scalars(select(self.model)).all()
 
     def get_one(self, id_: int) -> T | None:
         """Retrieve a single record by ID."""
