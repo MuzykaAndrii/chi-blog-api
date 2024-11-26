@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "chi-blog-api"
+version = "0.1.0"
+description = ""
+authors = ["MuzykaAndrii <andrymyzik@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+Flask = "^3.1.0"
+SQLAlchemy = "^2.0.36"
+psycopg = "^3.2.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
