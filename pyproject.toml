@@ -10,9 +10,9 @@ package-mode = false
 python = "^3.11"
 Flask = "^3.1.0"
 SQLAlchemy = "^2.0.36"
-psycopg = "^3.2.3"
 pydantic = "^2.10.2"
 pydantic-settings = "^2.6.1"
+psycopg2 = "^2.9.10"
 
 [build-system]
 requires = ["poetry-core"]
