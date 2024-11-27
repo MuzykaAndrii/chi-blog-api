@@ -20,18 +20,13 @@ def handle_username_exists(e: UsernameAlreadyExists):
 
 @router.get("")
 def get_users_list():
-    users = user_service.get_all_users()
-    return JsonResponse(users.model_dump_json())
+    search_query = request.args.get("name", None)
 
+    if search_query:
+        users = user_service.search_users_by_name(search_query)
+    else:
+        users = user_service.get_all_users()
 
-@router.get("/search")
-def search_users():
-    query = request.args.get("name", None)
-
-    if not query:
-        return jsonify({"error": "Name parameter is required"}), 400
-
-    users = user_service.search_users_by_name(query)
     return JsonResponse(users.model_dump_json())
 
 
