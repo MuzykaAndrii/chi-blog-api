@@ -5,6 +5,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column as mc
 
+from app.articles.models import Article
 from app.db.base import Base
 
 
@@ -15,7 +16,7 @@ class User(Base):
     email: Mapped[str] = mc(String(length=40), unique=True, nullable=False)
     password_hash: Mapped[bytes] = mc(LargeBinary, nullable=False)
 
-    articles: Mapped[list["Article"]] = relationship("Article", back_populates="owner")  # type: ignore
+    articles: Mapped[list[Article]] = relationship(back_populates="owner")
 
     def __str__(self) -> str:
         return self.username
