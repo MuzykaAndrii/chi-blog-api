@@ -17,7 +17,7 @@ class Article(Base):
     )
     owner_id: Mapped[int] = mc(ForeignKey("users.id"), nullable=False)
 
-    owner: Mapped["User"] = relationship("User", back_populates="articles")
+    owner: Mapped["User"] = relationship("User", back_populates="articles")  # type: ignore
 
     def __str__(self) -> str:
         return self.title

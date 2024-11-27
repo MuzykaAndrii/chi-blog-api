@@ -2,7 +2,7 @@ from sqlalchemy import (
     String,
     LargeBinary,
 )
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column as mc
 
 from app.db.base import Base
@@ -14,6 +14,8 @@ class User(Base):
     username: Mapped[str] = mc(String(length=30), unique=True, nullable=False)
     email: Mapped[str] = mc(String(length=40), unique=True, nullable=False)
     password_hash: Mapped[bytes] = mc(LargeBinary, nullable=False)
+
+    articles: Mapped[list["Article"]] = relationship("Article", back_populates="owner")  # type: ignore
 
     def __str__(self) -> str:
         return self.username
