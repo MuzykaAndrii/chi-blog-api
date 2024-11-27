@@ -11,7 +11,7 @@ from app.users.exceptions import (
 )
 
 
-class UserService(PwdManagerMixin):
+class UserService:
     """
     Service class for handling user-related operations.
     Extends PwdManagerMixin to leverage password hashing and verification methods.
@@ -33,16 +33,16 @@ class UserService(PwdManagerMixin):
 
         return UsersListReadDTO(users)
 
-    def get_by_credentials(self, credentials: UserLoginDTO) -> UserReadDTO:
+    def get_by_credentials(self, credentials: dict) -> UserReadDTO:
         """Authenticates a user using their login credentials."""
 
-        user = self._dao.get_by_email(credentials.email)
+        validated_creds = UserLoginDTO(**credentials)
+        user = self._dao.get_by_email(validated_creds.email)
 
         if not user:
             raise UserNotFound
 
-        if not self.verify_hash(credentials.password, user.password_hash):
-            raise InvalidPassword
+        validated_creds.verify_pwd(user.password_hash)
 
         return UserReadDTO.model_validate(user)
 

@@ -1,13 +1,18 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, RootModel, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, RootModel
 
+from app.users.exceptions import InvalidPassword
 from app.users.pwd import PwdManagerMixin
 
 
-class UserLoginDTO(BaseModel):
+class UserLoginDTO(BaseModel, PwdManagerMixin):
     """Data Transfer Object (DTO) for user login information."""
 
     email: EmailStr
     password: str
+
+    def verify_pwd(self, pwd_hash: bytes) -> None:
+        if not self.verify_hash(self.password, pwd_hash):
+            raise InvalidPassword
 
 
 class UserReadDTO(BaseModel):
