@@ -17,4 +17,4 @@ class ArticleReadDTO(ArticleCreateDTO):
     created_at: datetime
 
 
-ArticlesListReadDTO = RootModel(list[ArticleReadDTO])
+ArticlesListReadDTO = RootModel[list[ArticleReadDTO]]
