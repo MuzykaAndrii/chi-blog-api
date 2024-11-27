@@ -89,9 +89,9 @@ class UserService:
         """
         Inspects the IntegrityError to identify constraint violations and raises appropriate exceptions.
         """
-        if "users.email" in str(error.orig):
+        if "users_email_key" in str(error.orig):
             raise UserEmailAlreadyExists
-        elif "users.username" in str(error.orig):
+        elif "users_username_key" in str(error.orig):
             raise UsernameAlreadyExists
         else:
             raise error
