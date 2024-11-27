@@ -7,6 +7,7 @@ from app.users.exceptions import (
     InvalidPassword,
     UserEmailAlreadyExists,
     UserNotFound,
+    UsernameAlreadyExists,
 )
 
 
@@ -49,8 +50,8 @@ class UserService(PwdManagerMixin):
         """Creates a new user with the provided registration data."""
 
         user_model = UserCreateDTO(**user_data)
-        validated_user_data = user_model.model_dump(exclude=["pwd1", "pwd2"])
-        validated_user_data["password_hash"] = self.gen_hash(user_model.pwd1)
+        validated_user_data = user_model.model_dump(exclude=["password"])
+        validated_user_data["password_hash"] = self.gen_hash(user_model.password)
 
         try:
             user = self._dao.create(**validated_user_data)
@@ -59,3 +60,30 @@ class UserService(PwdManagerMixin):
             raise UserEmailAlreadyExists
 
         return UserReadDTO.model_validate(user)
+
+    def update_user(self, user_id: int, user_data: dict) -> UserReadDTO:
+        """Creates or updates a new user with provided registration data"""
+        user = self._dao.get_one(user_id)
+
+        if not user:
+            raise UserNotFound
+
+        user_model = UserCreateDTO(**user_data)
+        validated_user_data = user_model.model_dump(exclude=["password"])
+        validated_user_data["password_hash"] = self.gen_hash(user_model.password)
+
+        try:
+            updated_user = self._dao.update(user_id, **validated_user_data)
+        except IntegrityError as e:
+            constraint_name = (
+                e.orig.diag.constraint_name if hasattr(e.orig, "diag") else None
+            )
+
+            if constraint_name == "uq_users_email":
+                raise UserEmailAlreadyExists
+            elif constraint_name == "uq_users_username":
+                raise UsernameAlreadyExists
+            else:
+                raise e
+
+        return UserReadDTO.model_validate(updated_user)

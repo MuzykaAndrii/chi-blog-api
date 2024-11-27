@@ -38,3 +38,16 @@ def create_user():
         return jsonify({"error": "Email already exists"}), 400
 
     # TODO: handle username already exists error
+
+
+@router.put("/<int:user_id>")
+def update_user(user_id: int):
+    try:
+        updated_user = user_service.update_user(user_id, request.get_json())
+        return JsonResponse(updated_user.model_dump_json(), status=200)
+
+    except UserNotFound:
+        return jsonify({"error": "User not found"}), 404
+
+    except ValidationError as e:
+        return JsonResponse(e.json(), status=400)

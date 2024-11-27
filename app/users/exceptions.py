@@ -26,3 +26,7 @@ class InvalidPassword(UserError):
 
 class UserEmailAlreadyExists(UserError):
     """Error raised when user email is already exists"""
+
+
+class UsernameAlreadyExists(UserError):
+    """Error raised when username is already exists"""
