@@ -1,10 +1,8 @@
 from sqlalchemy.exc import IntegrityError
 
-from app.users.pwd import PwdManagerMixin
 from app.users.dao import UserDAO
 from app.users.dto import UserCreateDTO, UserLoginDTO, UserReadDTO, UsersListReadDTO
 from app.users.exceptions import (
-    InvalidPassword,
     UserEmailAlreadyExists,
     UserNotFound,
     UsernameAlreadyExists,
