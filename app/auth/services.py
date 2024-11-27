@@ -40,10 +40,11 @@ class AuthService:
             token = request.cookies.get(self.cookie_name)
 
             try:
-                self._jwt_manager.read_token(token)
+                user_id = self._jwt_manager.read_token(token)
+                user = self._user_service.get_user_by_id(user_id)
             except AuthError:
-                return jsonify(status=401)
+                return jsonify({"error": "wrong credentials"}, status=401)
             else:
-                return router(*args, **kwargs)
+                return router(*args, **kwargs, current_user=user)
 
         return wrapper
