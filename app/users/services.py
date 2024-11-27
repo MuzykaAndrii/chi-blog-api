@@ -74,6 +74,14 @@ class UserService:
 
         return UserReadDTO.model_validate(updated_user)
 
+    def delete_user(self, user_id: int) -> None:
+        user = self._dao.get_one(user_id)
+
+        if not user:
+            raise UserNotFound
+
+        return self._dao.delete(user_id)
+
     def _catch_user_constraints_violation(self, error: IntegrityError) -> None:
         """
         Inspects the IntegrityError to identify constraint violations and raises appropriate exceptions.
