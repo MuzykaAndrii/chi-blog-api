@@ -2,7 +2,11 @@ from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
 
 from app.app import user_service
-from app.users.exceptions import UserEmailAlreadyExists, UserNotFound
+from app.users.exceptions import (
+    UserEmailAlreadyExists,
+    UserNotFound,
+    UsernameAlreadyExists,
+)
 from app.utils.response import JsonResponse
 
 
@@ -17,6 +21,16 @@ def handle_user_not_found_error(e):
 @router.errorhandler(ValidationError)
 def handle_validation_error(e: ValidationError):
     return JsonResponse(e.json(), status=400)
+
+
+@router.errorhandler(UserEmailAlreadyExists)
+def handle_user_email_exists(e: UserEmailAlreadyExists):
+    return jsonify({"error": "Email already exists"}), 400
+
+
+@router.errorhandler(UsernameAlreadyExists)
+def handle_username_exists(e: UsernameAlreadyExists):
+    return jsonify({"error": "Username already exists"}), 400
 
 
 @router.get("")
@@ -34,14 +48,8 @@ def get_user(user_id: int):
 
 @router.post("")
 def create_user():
-    try:
-        user = user_service.create(request.get_json())
-        return JsonResponse(user.model_dump_json(), status=201)
-
-    except UserEmailAlreadyExists:
-        return jsonify({"error": "Email already exists"}), 400
-
-    # TODO: handle username already exists error
+    user = user_service.create(request.get_json())
+    return JsonResponse(user.model_dump_json(), status=201)
 
 
 @router.put("/<int:user_id>")
