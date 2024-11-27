@@ -49,15 +49,21 @@ class UserService(PwdManagerMixin):
     def create(self, user_data: dict) -> UserReadDTO:
         """Creates a new user with the provided registration data."""
 
-        user_model = UserCreateDTO(**user_data)
-        validated_user_data = user_model.model_dump(exclude=["password"])
-        validated_user_data["password_hash"] = self.gen_hash(user_model.password)
+        validated_user = UserCreateDTO(**user_data)
 
         try:
-            user = self._dao.create(**validated_user_data)
-        except IntegrityError:
-            # TODO: add error handler for username already exists
-            raise UserEmailAlreadyExists
+            user = self._dao.create(**validated_user.model_dump())
+        except IntegrityError as e:
+            constraint_name = (
+                e.orig.diag.constraint_name if hasattr(e.orig, "diag") else None
+            )
+
+            if constraint_name == "uq_users_email":
+                raise UserEmailAlreadyExists
+            elif constraint_name == "uq_users_username":
+                raise UsernameAlreadyExists
+            else:
+                raise e
 
         return UserReadDTO.model_validate(user)
 
@@ -68,12 +74,10 @@ class UserService(PwdManagerMixin):
         if not user:
             raise UserNotFound
 
-        user_model = UserCreateDTO(**user_data)
-        validated_user_data = user_model.model_dump(exclude=["password"])
-        validated_user_data["password_hash"] = self.gen_hash(user_model.password)
+        validated_user = UserCreateDTO(**user_data)
 
         try:
-            updated_user = self._dao.update(user_id, **validated_user_data)
+            updated_user = self._dao.update(user_id, **validated_user.model_dump())
         except IntegrityError as e:
             constraint_name = (
                 e.orig.diag.constraint_name if hasattr(e.orig, "diag") else None
