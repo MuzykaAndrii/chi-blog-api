@@ -4,8 +4,8 @@ from typing import Callable
 from flask import request, jsonify, Response
 
 from app.auth.jwt import JwtManager
-from app.users.services import UserService
 from app.auth.exceptions import AuthError
+from app.auth.protocols import UserServiceProtocol
 
 
 class AuthService:
@@ -13,7 +13,11 @@ class AuthService:
 
     cookie_name: str = "auth_token"
 
-    def __init__(self, jwt_manager: JwtManager, user_service: UserService) -> None:
+    def __init__(
+        self,
+        jwt_manager: JwtManager,
+        user_service: UserServiceProtocol,
+    ) -> None:
         self._jwt_manager = jwt_manager
         self._user_service = user_service
 
