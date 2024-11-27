@@ -1,39 +1,22 @@
-from flask import request
+from flask import request, Blueprint
 from pydantic import ValidationError
 
-from bookstore.app import app, auth_service
-from bookstore.users.dto import UserCreateDTO, UserLoginDTO
-from bookstore.response import JsonResponse
-from bookstore.users.exceptions import (
+from app.app import auth_service
+from app.utils.response import JsonResponse
+from app.users.exceptions import (
     InvalidPassword,
-    UserEmailAlreadyExists,
     UserNotFound,
 )
 
-
-@app.route("/register", methods=["POST"])
-def register():
-    """Registers a new user with the provided credentials."""
-
-    try:
-        user_create_data = UserCreateDTO(**request.json)
-        auth_service.register_user(user_create_data)
-        return JsonResponse(status=201)
-
-    except ValidationError as e:
-        return JsonResponse(e.json(), status=400)
-
-    except UserEmailAlreadyExists:
-        return JsonResponse({"error": "Email already in use"}, status=400)
+router = Blueprint("auth", __name__, url_prefix="/auth")
 
 
-@app.route("/login", methods=["POST"])
+@router.post("/login")
 def login():
-    """Logs in a user and returns an auth token if credentials are valid."""
+    """Logs in a user and returns auth token if credentials are valid."""
 
     try:
-        login_data = UserLoginDTO(**request.json)
-        return auth_service.login_user(login_data)
+        return auth_service.login_user(request.get_json())
 
     except ValidationError as e:
         return JsonResponse(e.json(), status=400)
