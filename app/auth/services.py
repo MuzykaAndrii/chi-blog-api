@@ -43,7 +43,7 @@ class AuthService:
                 user_id = self._jwt_manager.read_token(token)
                 user = self._user_service.get_user_by_id(user_id)
             except AuthError:
-                return jsonify({"error": "wrong credentials"}, status=401)
+                return jsonify({"error": "not authenticated"}), 401
             else:
                 return router(*args, **kwargs, current_user=user)
 
