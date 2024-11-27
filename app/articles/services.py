@@ -1,6 +1,7 @@
 from app.articles.dao import ArticleDAO
-from app.articles.dto import ArticlesListReadDTO, ArticleReadDTO
+from app.articles.dto import ArticleCreateDTO, ArticlesListReadDTO, ArticleReadDTO
 from app.articles.exceptions import ArticleNotFound
+from app.users.dto import UserReadDTO
 
 
 class ArticleService:
@@ -20,3 +21,15 @@ class ArticleService:
             raise ArticleNotFound
 
         return ArticleReadDTO.model_validate(article)
+
+    def create_article(
+        self, creator: UserReadDTO, article_data: dict
+    ) -> ArticleReadDTO:
+        validated_article = ArticleCreateDTO(**article_data)
+
+        article_dict = validated_article.model_dump()
+        article_dict["owner_id"] = creator.id
+
+        created_article = self._dao.create(**article_dict)
+
+        return ArticleReadDTO.model_validate(created_article)

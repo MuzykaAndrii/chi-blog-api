@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
-from app.app import articles_service
+from app.app import articles_service, auth_service
 from app.articles.exceptions import ArticleNotFound
+from app.users.dto import UserReadDTO
 from app.utils.response import JsonResponse
 
 
@@ -20,8 +21,15 @@ def get_all_articles():
     return JsonResponse(articles.model_dump_json(), status=200)
 
 
-@router.get("/<article_id:int>")
+@router.get("/<int:article_id>")
 def get_article(article_id: int):
     article = articles_service.get_article_by_id(article_id)
 
     return JsonResponse(article.model_dump_json(), status=200)
+
+
+@router.post("")
+@auth_service.auth_required
+def create_article(current_user: UserReadDTO):
+    created_article = articles_service.create_article(current_user, request.get_json())
+    return JsonResponse(created_article.model_dump_json(), status=201)
