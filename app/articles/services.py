@@ -38,3 +38,8 @@ class ArticleService:
         created_article = self._dao.create(**article_dict)
 
         return ArticleReadDTO.model_validate(created_article)
+
+    def search_articles(self, query: str) -> ArticlesListReadDTO:
+        found_articles = self._dao.search_by_title_or_body(query)
+
+        return ArticlesListReadDTO.model_validate(found_articles)

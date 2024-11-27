@@ -16,7 +16,12 @@ def handle_article_not_found(e: ArticleNotFound):
 
 @router.get("/articles")
 def get_all_articles():
-    articles = articles_service.get_all_articles()
+    search_query = request.args.get("query", None)
+
+    if search_query:
+        articles = articles_service.search_articles(search_query)
+    else:
+        articles = articles_service.get_all_articles()
 
     return JsonResponse(articles.model_dump_json(), status=200)
 
