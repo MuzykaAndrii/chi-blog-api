@@ -14,6 +14,11 @@ class ArticleService:
         articles = self._dao.get_all()
         return ArticlesListReadDTO(articles)
 
+    def get_user_articles(self, user_id: int) -> ArticlesListReadDTO:
+        user_articles = self._dao.get_by_owner_id(user_id)
+
+        return ArticlesListReadDTO(user_articles)
+
     def get_article_by_id(self, article_id: int) -> ArticleReadDTO:
         article = self._dao.get_one(article_id)
 

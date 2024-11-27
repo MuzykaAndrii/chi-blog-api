@@ -6,7 +6,7 @@ from app.users.dto import UserReadDTO
 from app.utils.response import JsonResponse
 
 
-router = Blueprint("articles", __name__, url_prefix="/articles")
+router = Blueprint("articles", __name__)
 
 
 @router.errorhandler(ArticleNotFound)
@@ -14,21 +14,27 @@ def handle_article_not_found(e: ArticleNotFound):
     return jsonify({"error": "AArticle not found"}), 404
 
 
-@router.get("")
+@router.get("/articles")
 def get_all_articles():
     articles = articles_service.get_all_articles()
 
     return JsonResponse(articles.model_dump_json(), status=200)
 
 
-@router.get("/<int:article_id>")
+@router.get("/users/<int:user_id>/articles")
+def get_user_articles(user_id: int):
+    articles = articles_service.get_user_articles(user_id)
+    return JsonResponse(articles.model_dump_json(), status=200)
+
+
+@router.get("/articles/<int:article_id>")
 def get_article(article_id: int):
     article = articles_service.get_article_by_id(article_id)
 
     return JsonResponse(article.model_dump_json(), status=200)
 
 
-@router.post("")
+@router.post("/articles")
 @auth_service.auth_required
 def create_article(current_user: UserReadDTO):
     created_article = articles_service.create_article(current_user, request.get_json())
