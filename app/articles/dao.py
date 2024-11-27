@@ -1,5 +1,5 @@
 from typing import Sequence
-from sqlalchemy import select
+from sqlalchemy import or_, select
 
 from app.db.dao import BaseDAO
 from .models import Article
@@ -19,3 +19,15 @@ class ArticleDAO(BaseDAO[Article]):
 
         with self._sf() as session:
             return session.scalars(query).all()
+
+    def search_by_title_or_body(self, query: str) -> Sequence[Article]:
+        """Search for articles by a partial match in title or body."""
+
+        search_query = select(Article).where(
+            or_(
+                Article.title.ilike(f"%{query}%"),
+                Article.body.ilike(f"%{query}%"),
+            )
+        )
+        with self._sf() as session:
+            return session.scalars(search_query).all()
