@@ -5,7 +5,6 @@ from flask import request, jsonify, Response
 
 from app.auth.jwt import JwtManager
 from app.users.services import UserService
-from app.users.dto import UserLoginDTO
 from app.auth.exceptions import AuthError
 
 
@@ -18,7 +17,7 @@ class AuthService:
         self._jwt_manager = jwt_manager
         self._user_service = user_service
 
-    def login_user(self, credentials: UserLoginDTO) -> Response:
+    def login_user(self, credentials: dict) -> Response:
         """Authenticates a user and returns a response with an auth token cookie."""
 
         user = self._user_service.get_by_credentials(credentials)

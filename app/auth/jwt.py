@@ -3,7 +3,7 @@ import jwt
 from .exceptions import AuthenticationExpired, NotAuthenticated
 
 
-class AuthTokenManager:
+class JwtManager:
     """Handles JWT creation and decoding for user authentication."""
 
     def __init__(self, alg: str, secret: str, exp_delta: timedelta) -> None:
