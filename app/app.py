@@ -31,4 +31,8 @@ def create_app():
     app.register_blueprint(users_router)
     app.register_blueprint(auth_router)
 
+    from app.error_handlers import register_error_handlers
+
+    register_error_handlers(app)
+
     return app
