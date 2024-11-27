@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlalchemy import select
 
 from app.db.dao import BaseDAO
@@ -16,3 +17,10 @@ class UserDAO(BaseDAO[User]):
 
         with self._sf() as session:
             return session.scalar(select(User).where(User.email == email))
+
+    def search_by_name(self, name: str) -> Sequence[User]:
+        """Searches for users by a partial or full name match."""
+        query = select(User).where(User.username.ilike(f"%{name}%"))
+
+        with self._sf() as session:
+            return session.scalars(query).all()

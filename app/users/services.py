@@ -28,6 +28,11 @@ class UserService:
 
         return UserReadDTO.model_validate(user)
 
+    def search_users_by_name(self, name: str):
+        found_users = self._dao.search_by_name(name)
+
+        return UsersListReadDTO(found_users)
+
     def get_all_users(self) -> UsersListReadDTO:
         users = self._dao.get_all()
 

@@ -39,6 +39,17 @@ def get_users_list():
     return JsonResponse(users.model_dump_json())
 
 
+@router.get("/search")
+def search_users():
+    query = request.args.get("name", None)
+
+    if not query:
+        return jsonify({"error": "Name parameter is required"}), 400
+
+    users = user_service.search_users_by_name(query)
+    return JsonResponse(users.model_dump_json())
+
+
 @router.get("/<int:user_id>")
 def get_user(user_id: int):
     user = user_service.get_user_by_id(user_id)
