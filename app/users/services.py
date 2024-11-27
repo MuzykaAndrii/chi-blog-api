@@ -54,21 +54,12 @@ class UserService(PwdManagerMixin):
         try:
             user = self._dao.create(**validated_user.model_dump())
         except IntegrityError as e:
-            constraint_name = (
-                e.orig.diag.constraint_name if hasattr(e.orig, "diag") else None
-            )
-
-            if constraint_name == "uq_users_email":
-                raise UserEmailAlreadyExists
-            elif constraint_name == "uq_users_username":
-                raise UsernameAlreadyExists
-            else:
-                raise e
+            self._catch_user_constraints_violation(e)
 
         return UserReadDTO.model_validate(user)
 
     def update_user(self, user_id: int, user_data: dict) -> UserReadDTO:
-        """Creates or updates a new user with provided registration data"""
+        """Updates user with provided update data"""
         user = self._dao.get_one(user_id)
 
         if not user:
@@ -79,15 +70,17 @@ class UserService(PwdManagerMixin):
         try:
             updated_user = self._dao.update(user_id, **validated_user.model_dump())
         except IntegrityError as e:
-            constraint_name = (
-                e.orig.diag.constraint_name if hasattr(e.orig, "diag") else None
-            )
-
-            if constraint_name == "uq_users_email":
-                raise UserEmailAlreadyExists
-            elif constraint_name == "uq_users_username":
-                raise UsernameAlreadyExists
-            else:
-                raise e
+            self._catch_user_constraints_violation(e)
 
         return UserReadDTO.model_validate(updated_user)
+
+    def _catch_user_constraints_violation(self, error: IntegrityError) -> None:
+        """
+        Inspects the IntegrityError to identify constraint violations and raises appropriate exceptions.
+        """
+        if "users.email" in str(error.orig):
+            raise UserEmailAlreadyExists
+        elif "users.username" in str(error.orig):
+            raise UsernameAlreadyExists
+        else:
+            raise error
