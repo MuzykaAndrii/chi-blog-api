@@ -5,7 +5,7 @@ from flask import request, jsonify, Response
 
 from app.auth.jwt import JwtManager
 from app.auth.exceptions import AuthError
-from app.auth.protocols import UserServiceProtocol
+from app.auth.protocols import SupportsIdProtocol, UserServiceProtocol
 
 
 class AuthService:
@@ -32,19 +32,27 @@ class AuthService:
 
         return resp
 
-    def auth_required(self, router: Callable):
+    def get_current_user(self) -> SupportsIdProtocol | None:
+        token = request.cookies.get(self.cookie_name)
+
+        try:
+            user_id = self._jwt_manager.read_token(token)
+            user = self._user_service.get_user_by_id(user_id)
+        except AuthError:
+            return None
+
+        return user
+
+    def login_required(self, router: Callable):
         """Decorator to protect routes, requiring a valid auth token to access."""
 
         @wraps(router)
         def wrapper(*args, **kwargs):
-            token = request.cookies.get(self.cookie_name)
+            current_user = self.get_current_user()
 
-            try:
-                user_id = self._jwt_manager.read_token(token)
-                user = self._user_service.get_user_by_id(user_id)
-            except AuthError:
+            if not current_user:
                 return jsonify({"error": "not authenticated"}), 401
-            else:
-                return router(*args, **kwargs, current_user=user)
+
+            return router(*args, **kwargs, current_user=current_user)
 
         return wrapper

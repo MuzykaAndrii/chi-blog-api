@@ -40,7 +40,7 @@ def get_article(article_id: int):
 
 
 @router.post("/articles")
-@auth_service.auth_required
+@auth_service.login_required
 def create_article(current_user: UserReadDTO):
     created_article = articles_service.create_article(current_user, request.get_json())
     return JsonResponse(created_article.model_dump_json(), status=201)
