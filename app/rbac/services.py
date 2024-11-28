@@ -1,4 +1,4 @@
-from app.permissions.dao import RoleDAO
+from app.rbac.dao import RoleDAO
 
 
 class RoleService:
