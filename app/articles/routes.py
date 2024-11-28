@@ -44,3 +44,10 @@ def get_article(article_id: int):
 def create_article(current_user: UserReadDTO):
     created_article = articles_service.create_article(current_user, request.get_json())
     return JsonResponse(created_article.model_dump_json(), status=201)
+
+
+@router.delete("/articles/<int:article_id>")
+def delete_article(article_id: int):
+    articles_service.delete_article(article_id)
+
+    return JsonResponse(status=204)

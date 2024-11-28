@@ -43,3 +43,11 @@ class ArticleService:
         found_articles = self._dao.search_by_title_or_body(query)
 
         return ArticlesListReadDTO.model_validate(found_articles)
+
+    def delete_article(self, article_id: int) -> None:
+        article = self._dao.get_one(article_id)
+
+        if not article:
+            raise ArticleNotFound
+
+        return self._dao.delete(article_id)
