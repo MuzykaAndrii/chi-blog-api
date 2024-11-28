@@ -51,3 +51,14 @@ class ArticleService:
             raise ArticleNotFound
 
         return self._dao.delete(article_id)
+
+    def update_article(self, article_id: int, update_data: dict) -> ArticleReadDTO:
+        article = self._dao.get_one(article_id)
+
+        if not article:
+            raise ArticleNotFound
+
+        validated_article = ArticleCreateDTO(**update_data)
+        updated_article = self._dao.update(article_id, **validated_article.model_dump())
+
+        return ArticleReadDTO.model_validate(updated_article)

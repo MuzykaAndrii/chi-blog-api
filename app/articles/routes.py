@@ -51,3 +51,10 @@ def delete_article(article_id: int):
     articles_service.delete_article(article_id)
 
     return JsonResponse(status=204)
+
+
+@router.put("/articles/<int:article_id>")
+def update_article(article_id: int):
+    updated_article = articles_service.update_article(article_id, request.get_json())
+
+    return JsonResponse(updated_article.model_dump_json(), status=200)
