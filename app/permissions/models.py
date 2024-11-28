@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy.orm import mapped_column as mc
 
 from app.db.base import Base
+from app.users.models import User
 
 
 class Role(Base):
@@ -14,6 +15,8 @@ class Role(Base):
     permissions: Mapped[Set["Permission"]] = relationship(
         secondary="roles_permissions", back_populates="roles"
     )
+
+    users: Mapped[list[User]] = relationship(back_populates="role")
 
     def __str__(self) -> str:
         return self.name
