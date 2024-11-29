@@ -10,7 +10,8 @@ from app.auth.services import AuthService
 from app.db.config import DbSettings
 from app.config import ENV_FILE_PATH
 from app.db.database import Database
-from app.rbac.services import RoleBasedAccessController, RoleService
+from app.rbac.rbac import RoleBasedAccessController
+from app.rbac.services import RoleService
 from app.rbac.dao import RoleDAO
 from app.users.dao import UserDAO
 from app.users.services import UserService
