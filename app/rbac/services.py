@@ -1,7 +1,7 @@
 from typing import Callable
 from functools import wraps
 
-from flask import jsonify, request
+from flask import jsonify
 
 from app.rbac.dao import RoleDAO
 from app.auth.services import AuthService  # refactor with protocol
@@ -46,22 +46,24 @@ class AuthorizationService:
         self.auth = auth_service
         self.users = user_service
 
-    def permission_required(self, router_func: Callable):
+    def permission_required(self, permission: str):
 
-        @wraps(router_func)
-        def decorator(*args, **kwargs):
-            user = self.auth.get_current_user()
+        def decorator(router_func: Callable):
 
-            if not user:
-                raise ValueError
+            @wraps(router_func)
+            def wrapper(*args, **kwargs):
+                user = self.auth.get_current_user()
 
-            endpoint = request.endpoint
+                if not user:
+                    raise ValueError
 
-            has_perm = self.users.user_has_permission(user.id, endpoint)
+                has_perm = self.users.user_has_permission(user.id, permission)
 
-            if not has_perm:
-                return jsonify({"error": "Permission denied"}), 403
+                if not has_perm:
+                    return jsonify({"error": "Permission denied"}), 403
 
-            return router_func(*args, **kwargs)
+                return router_func(*args, **kwargs)
+
+            return wrapper
 
         return decorator

@@ -38,7 +38,7 @@ def get_user(user_id: int):
 
 
 @router.post("")
-@permission_service.permission_required
+@permission_service.permission_required("users.can_create")
 def create_user():
     user = user_service.create(request.get_json())
     return JsonResponse(user.model_dump_json(), status=201)
