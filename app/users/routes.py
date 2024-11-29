@@ -45,12 +45,14 @@ def create_user():
 
 
 @router.put("/<int:user_id>")
+@rbac.permission_required("users.can_update")
 def update_user(user_id: int):
     updated_user = user_service.update_user(user_id, request.get_json())
     return JsonResponse(updated_user.model_dump_json(), status=200)
 
 
 @router.delete("/<int:user_id>")
+@rbac.permission_required("users.can_delete")
 def delete_user(user_id: int):
     user_service.delete_user(user_id)
     return JsonResponse(status=204)

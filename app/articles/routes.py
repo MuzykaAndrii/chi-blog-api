@@ -42,7 +42,7 @@ def get_article(article_id: int):
 
 
 @router.post("/articles")
-@auth_service.login_required
+@rbac.permission_required("articles.can_create")
 def create_article(current_user: UserReadDTO):
     created_article = articles_service.create_article(current_user, request.get_json())
     return JsonResponse(created_article.model_dump_json(), status=201)
@@ -52,12 +52,11 @@ def create_article(current_user: UserReadDTO):
 @rbac.permission_required("articles.can_delete", unless=user_is_article_owner)
 def delete_article(article_id: int):
     articles_service.delete_article(article_id)
-
     return JsonResponse(status=204)
 
 
 @router.put("/articles/<int:article_id>")
+@rbac.permission_required("articles.can_update", unless=user_is_article_owner)
 def update_article(article_id: int):
     updated_article = articles_service.update_article(article_id, request.get_json())
-
     return JsonResponse(updated_article.model_dump_json(), status=200)
