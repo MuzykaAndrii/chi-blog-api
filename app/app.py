@@ -10,6 +10,8 @@ from app.auth.services import AuthService
 from app.db.config import DbSettings
 from app.config import ENV_FILE_PATH
 from app.db.database import Database
+from app.rbac.services import RoleService
+from app.rbac.dao import RoleDAO
 from app.users.dao import UserDAO
 from app.users.services import UserService
 
@@ -26,6 +28,13 @@ articles_service = ArticleService(articles_dao)
 auth_settings = AuthSettings(_env_file=ENV_FILE_PATH)
 auth_jwt_manager = JwtManager("HS256", auth_settings.AUTH_SECRET, timedelta(days=1))
 auth_service = AuthService(auth_jwt_manager, user_service)
+
+role_dao = RoleDAO(db.session_factory)
+role_service = RoleService(
+    role_dao=role_dao,
+    base_roles={"viewer", "editor", "admin"},
+    default_role="viewer",
+)
 
 
 def create_app():
