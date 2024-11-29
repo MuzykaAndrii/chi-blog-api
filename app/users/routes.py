@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from app.app import user_service, permission_service
+from app.app import user_service, rbac
 from app.users.exceptions import UserEmailAlreadyExists, UsernameAlreadyExists
 from app.utils.response import JsonResponse
 
@@ -38,7 +38,7 @@ def get_user(user_id: int):
 
 
 @router.post("")
-@permission_service.permission_required("users.can_create")
+@rbac.permission_required("users.can_create")
 def create_user():
     user = user_service.create(request.get_json())
     return JsonResponse(user.model_dump_json(), status=201)

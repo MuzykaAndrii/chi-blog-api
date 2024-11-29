@@ -4,8 +4,7 @@ from functools import wraps
 from flask import jsonify
 
 from app.rbac.dao import RoleDAO
-from app.auth.services import AuthService  # refactor with protocol
-from app.users.services import UserService  # refactor with protocol
+from app.rbac.protocols import SupportsGetCurrentUser, SupportsPermissionCheck
 
 
 class RoleService:
@@ -41,10 +40,14 @@ class RoleService:
         return role.id
 
 
-class AuthorizationService:
-    def __init__(self, auth_service: AuthService, user_service: UserService):
-        self.auth = auth_service
-        self.users = user_service
+class RoleBasedAccessController:
+    def __init__(
+        self,
+        current_user_getter: SupportsGetCurrentUser,
+        permission_checker: SupportsPermissionCheck,
+    ):
+        self.current_user_getter = current_user_getter
+        self.permission_checker = permission_checker
 
     def permission_required(self, permission: str):
 
@@ -52,14 +55,14 @@ class AuthorizationService:
 
             @wraps(router_func)
             def wrapper(*args, **kwargs):
-                user = self.auth.get_current_user()
+                current_user = self.current_user_getter.get_current_user()
 
-                if not user:
-                    raise ValueError
+                if not current_user:
+                    return jsonify({"error": "not authenticated"}), 401
 
-                has_perm = self.users.user_has_permission(user.id, permission)
-
-                if not has_perm:
+                if not self.permission_checker.user_has_permission(
+                    current_user.id, permission
+                ):
                     return jsonify({"error": "Permission denied"}), 403
 
                 return router_func(*args, **kwargs)
