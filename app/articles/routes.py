@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request
 
+from app.app import rbac
 from app.app import articles_service, auth_service
 from app.articles.exceptions import ArticleNotFound
+from app.articles.permissions import user_is_article_owner
 from app.users.dto import UserReadDTO
 from app.utils.response import JsonResponse
 
@@ -11,7 +13,7 @@ router = Blueprint("articles", __name__)
 
 @router.errorhandler(ArticleNotFound)
 def handle_article_not_found(e: ArticleNotFound):
-    return jsonify({"error": "AArticle not found"}), 404
+    return jsonify({"error": "Article not found"}), 404
 
 
 @router.get("/articles")
@@ -47,6 +49,7 @@ def create_article(current_user: UserReadDTO):
 
 
 @router.delete("/articles/<int:article_id>")
+@rbac.permission_required("articles.can_delete", unless=user_is_article_owner)
 def delete_article(article_id: int):
     articles_service.delete_article(article_id)
 

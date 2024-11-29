@@ -15,7 +15,9 @@ class RoleBasedAccessController:
         self.current_user_getter = current_user_getter
         self.permission_checker = permission_checker
 
-    def permission_required(self, permission: str):
+    def permission_required(
+        self, permission: str, unless: Callable[..., bool] | None = None
+    ):
 
         def decorator(router_func: Callable):
 
@@ -25,6 +27,9 @@ class RoleBasedAccessController:
 
                 if not current_user:
                     return jsonify({"error": "not authenticated"}), 401
+
+                if unless and unless(current_user, *args, **kwargs):
+                    return router_func(*args, **kwargs)
 
                 if not self.permission_checker.user_has_permission(
                     current_user.id, permission
