@@ -1,4 +1,11 @@
+from typing import Callable
+from functools import wraps
+
+from flask import jsonify, request
+
 from app.rbac.dao import RoleDAO
+from app.auth.services import AuthService  # refactor with protocol
+from app.users.services import UserService  # refactor with protocol
 
 
 class RoleService:
@@ -32,3 +39,29 @@ class RoleService:
             raise ValueError(f"Default user role '{self._default_role}' not found.")
 
         return role.id
+
+
+class AuthorizationService:
+    def __init__(self, auth_service: AuthService, user_service: UserService):
+        self.auth = auth_service
+        self.users = user_service
+
+    def permission_required(self, router_func: Callable):
+
+        @wraps(router_func)
+        def decorator(*args, **kwargs):
+            user = self.auth.get_current_user()
+
+            if not user:
+                raise ValueError
+
+            endpoint = request.endpoint
+
+            has_perm = self.users.user_has_permission(user.id, endpoint)
+
+            if not has_perm:
+                return jsonify({"error": "Permission denied"}), 403
+
+            return router_func(*args, **kwargs)
+
+        return decorator

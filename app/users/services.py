@@ -85,6 +85,14 @@ class UserService:
 
         return self._dao.delete(user_id)
 
+    def user_has_permission(self, user_id: int, permission: str) -> bool:
+        user = self._dao.get_with_permissions(user_id)
+
+        if not user:
+            raise UserNotFound
+
+        return permission in {perm.name for perm in user.role.permissions}
+
     def _catch_user_constraints_violation(self, error: IntegrityError) -> None:
         """
         Inspects the IntegrityError to identify constraint violations and raises appropriate exceptions.
