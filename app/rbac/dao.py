@@ -19,6 +19,19 @@ class RoleDAO(BaseDAO[Role]):
 
             return roles_with_permissions.scalars().all()
 
+    def get_one(self, id_: int, load_permissions: bool = False) -> Role | None:
+        if load_permissions:
+            return super().get_one(id_)
+
+        with self._sf() as session:
+            role_with_permissions = session.execute(
+                select(Role)
+                .where(Role.id == id_)
+                .options(selectinload(Role.permissions))
+            )
+
+            return role_with_permissions.scalar_one_or_none()
+
     def get_by_name(self, name: str) -> Role | None:
         with self._sf() as session:
             return session.scalar(select(Role).where(Role.name == name))

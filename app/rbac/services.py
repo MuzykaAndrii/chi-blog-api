@@ -1,5 +1,6 @@
 from app.rbac.dao import PermissionDAO, RoleDAO
-from app.rbac.dto import RolesListReadDTO
+from app.rbac.dto import RoleReadDTO, RolesListReadDTO
+from app.rbac.exceptions import RoleNotFound
 
 
 class RoleService:
@@ -20,6 +21,15 @@ class RoleService:
         """Get all roles."""
         roles = self._role_dao.get_all(load_permissions=True)
         return RolesListReadDTO(roles)
+
+    def get_role_by_id(self, role_id: int) -> RoleReadDTO:
+        """Get a single role by ID."""
+        role = self._role_dao.get_one(role_id)
+
+        if not role:
+            raise RoleNotFound
+
+        return RoleReadDTO.model_validate(role)
 
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging
