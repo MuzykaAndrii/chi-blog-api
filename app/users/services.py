@@ -7,13 +7,19 @@ from app.users.exceptions import (
     UserNotFound,
     UsernameAlreadyExists,
 )
+from app.users.protocols import SupportsDefaultRoleIDAttr
 
 
 class UserService:
     """Service class for handling user-related operations."""
 
-    def __init__(self, user_dao: UserDAO) -> None:
+    def __init__(
+        self,
+        user_dao: UserDAO,
+        default_role_id_getter: SupportsDefaultRoleIDAttr,
+    ) -> None:
         self._dao = user_dao
+        self.roles = default_role_id_getter
 
     def get_user_by_id(self, user_id: int) -> UserReadDTO:
         user = self._get_user_or_raise(user_id)
@@ -42,6 +48,9 @@ class UserService:
         """Creates a new user with the provided registration data."""
         validated_user = UserCreateDTO(**user_data)
 
+        if not validated_user.role_id:
+            validated_user.role_id = self.roles.default_role_id
+
         try:
             user = self._dao.create(**validated_user.model_dump())
         except IntegrityError as e:
@@ -54,6 +63,9 @@ class UserService:
         self._get_user_or_raise(user_id)  # Ensure user exists before update
 
         validated_user = UserCreateDTO(**user_data)
+
+        if not validated_user.role_id:
+            validated_user.role_id = self.roles.default_role_id
 
         try:
             updated_user = self._dao.update(user_id, **validated_user.model_dump())

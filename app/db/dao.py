@@ -36,8 +36,9 @@ class BaseDAO(Generic[T], ABC):
         instance = self.model(**fields)
         with self._sf() as session:
             session.add(instance)
-            session.flush()
             session.commit()
+            session.refresh(instance)  # needs to load all lazy fields
+
         return instance
 
     def delete(self, id_: int) -> None:
@@ -59,4 +60,8 @@ class BaseDAO(Generic[T], ABC):
             )
             res = session.execute(stmt)
             session.commit()
-            return res.scalar_one()
+            updated_obj = res.scalar_one()
+
+            session.refresh(updated_obj)  # needs for load all lazy fields
+
+            return updated_obj

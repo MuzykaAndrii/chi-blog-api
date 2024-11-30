@@ -1,4 +1,3 @@
-from typing import Any
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -51,6 +50,7 @@ class UserCreateDTO(BaseModel, PwdManagerMixin):
     username: str = Field(max_length=30, min_length=4)
     email: EmailStr
     password: str = Field(min_length=8, max_length=50)
+    role_id: int | None = None
 
     def model_dump(self, *args, **kwargs) -> dict:
         dumped = super().model_dump(*args, **kwargs, exclude=["password"])
