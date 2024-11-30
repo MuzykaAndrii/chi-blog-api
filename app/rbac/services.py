@@ -91,6 +91,19 @@ class RoleService:
 
         return PermissionsListReadDTO.model_validate(updated_role.permissions)
 
+    def remove_permission_from_role(self, role_id: int, permission_id: int):
+        role = self._role_dao.get_one(role_id, load_permissions=True)
+        if not role:
+            raise RoleNotFound
+
+        permission = self._perm_dao.get_one(permission_id)
+        if not permission:
+            raise PermissionNotFound
+
+        updated_role = self._role_dao.remove_permission(role, permission)
+
+        return PermissionsListReadDTO.model_validate(updated_role.permissions)
+
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging
 

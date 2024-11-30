@@ -61,8 +61,22 @@ def get_role_permissions(role_id: int):
 @router.post("/<int:role_id>/permissions/<int:permission_id>")
 def assign_permission_to_role(role_id: int, permission_id: int):
     try:
-        updated_role = role_service.assign_permission_to_role(role_id, permission_id)
-        return JsonResponse(updated_role.model_dump_json(), status=200)
+        new_permissions_list = role_service.assign_permission_to_role(
+            role_id, permission_id
+        )
+        return JsonResponse(new_permissions_list.model_dump_json(), status=200)
+
+    except PermissionNotFound:
+        return jsonify({"error": "Permission not found"}), 404
+
+
+@router.delete("/<int:role_id>/permissions/<int:permission_id>")
+def remove_permission_from_role(role_id: int, permission_id: int):
+    try:
+        new_permissions_list = role_service.remove_permission_from_role(
+            role_id, permission_id
+        )
+        return JsonResponse(new_permissions_list.model_dump_json(), status=200)
 
     except PermissionNotFound:
         return jsonify({"error": "Permission not found"}), 404

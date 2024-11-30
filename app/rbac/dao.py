@@ -48,6 +48,18 @@ class RoleDAO(BaseDAO[Role]):
 
             return role
 
+    def remove_permission(self, role: Role, permission: Permission) -> Role:
+        """Remove a permission from a role."""
+        with self._sf() as session:
+            role = session.merge(role)
+            permission = session.merge(permission)
+
+            role.permissions.discard(permission)
+            session.refresh(role, attribute_names=["permissions"])
+            session.commit()
+
+            return role
+
 
 class PermissionDAO(BaseDAO[Permission]):
     model = Permission
