@@ -1,6 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 
-from app.rbac.dao import PermissionDAO, RoleDAO
+from app.rbac.dao.permission import PermissionDAO
+from app.rbac.dao.role import RoleDAO
 from app.rbac.dto import (
     RoleReadDTO,
     RoleWithPermsReadDTO,
