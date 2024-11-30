@@ -12,7 +12,7 @@ from app.config import ENV_FILE_PATH
 from app.db.database import Database
 from app.rbac.rbac import RoleBasedAccessController
 from app.rbac.services import RoleService
-from app.rbac.dao import RoleDAO
+from app.rbac.dao import PermissionDAO, RoleDAO
 from app.users.dao import UserDAO
 from app.users.services import UserService
 
@@ -20,9 +20,11 @@ from app.users.services import UserService
 db_settings = DbSettings(_env_file=ENV_FILE_PATH)
 db = Database(db_settings)
 
+permission_dao = PermissionDAO(db.session_factory)
 role_dao = RoleDAO(db.session_factory)
 role_service = RoleService(
     role_dao=role_dao,
+    perm_dao=permission_dao,
     base_roles={"viewer", "editor", "admin"},
     default_role="viewer",
 )
@@ -45,10 +47,12 @@ def create_app():
     from app.users.routes import router as users_router
     from app.auth.routes import router as auth_router
     from app.articles.routes import router as articles_router
+    from app.rbac.routes import router as rbac_router
 
     app.register_blueprint(users_router)
     app.register_blueprint(auth_router)
     app.register_blueprint(articles_router)
+    app.register_blueprint(rbac_router)
 
     from app.error_handlers import register_error_handlers
 
