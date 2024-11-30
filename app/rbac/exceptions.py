@@ -8,3 +8,7 @@ class RoleNotFound(RoleError):
 
 class RoleAlreadyExists(RoleError):
     """Exception what occurred when role already exists"""
+
+
+class PermissionNotFound(RoleError):
+    """Exception when permission not found."""

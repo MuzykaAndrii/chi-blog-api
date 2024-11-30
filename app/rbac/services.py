@@ -7,7 +7,7 @@ from app.rbac.dto import (
     RolesWithPermsListReadDTO,
     PermissionsListReadDTO,
 )
-from app.rbac.exceptions import RoleAlreadyExists, RoleNotFound
+from app.rbac.exceptions import PermissionNotFound, RoleAlreadyExists, RoleNotFound
 
 
 class RoleService:
@@ -19,7 +19,7 @@ class RoleService:
         default_role: str = "viewer",
     ):
         self._role_dao = role_dao
-        self_perm_dao = perm_dao
+        self._perm_dao = perm_dao
         self._base_roles = base_roles
         self._default_role = default_role
         self._base_roles.add(default_role)
@@ -77,6 +77,19 @@ class RoleService:
             raise RoleNotFound
 
         return PermissionsListReadDTO.model_validate(role.permissions)
+
+    def assign_permission_to_role(self, role_id: int, permission_id: int):
+        role = self._role_dao.get_one(role_id, load_permissions=True)
+        if not role:
+            raise RoleNotFound
+
+        permission = self._perm_dao.get_one(permission_id)
+        if not permission:
+            raise PermissionNotFound
+
+        updated_role = self._role_dao.add_permission(role, permission)
+
+        return PermissionsListReadDTO.model_validate(updated_role.permissions)
 
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging

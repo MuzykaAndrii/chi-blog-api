@@ -13,7 +13,9 @@ class Role(Base):
 
     name: Mapped[str] = mc(String(length=50), unique=True, nullable=False)
     permissions: Mapped[Set["Permission"]] = relationship(
-        secondary="roles_permissions", back_populates="roles"
+        secondary="roles_permissions",
+        back_populates="roles",
+        collection_class=set,
     )
 
     users: Mapped[list[User]] = relationship(back_populates="role")

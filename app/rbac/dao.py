@@ -36,6 +36,18 @@ class RoleDAO(BaseDAO[Role]):
         with self._sf() as session:
             return session.scalar(select(Role).where(Role.name == name))
 
+    def add_permission(self, role: Role, permission: Permission) -> Role:
+        """Assign a permission to a role."""
+        with self._sf() as session:
+            role = session.merge(role)
+            permission = session.merge(permission)
+
+            role.permissions.add(permission)
+            session.refresh(role, attribute_names=["permissions"])
+            session.commit()
+
+            return role
+
 
 class PermissionDAO(BaseDAO[Permission]):
     model = Permission

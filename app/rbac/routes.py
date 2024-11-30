@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from app.app import role_service
-from app.rbac.exceptions import RoleAlreadyExists, RoleNotFound
+from app.rbac.exceptions import PermissionNotFound, RoleAlreadyExists, RoleNotFound
 from app.utils.response import JsonResponse
 
 
@@ -56,3 +56,13 @@ def delete_role(role_id: int):
 def get_role_permissions(role_id: int):
     permissions = role_service.get_role_permissions(role_id)
     return JsonResponse(permissions.model_dump_json(), status=200)
+
+
+@router.post("/<int:role_id>/permissions/<int:permission_id>")
+def assign_permission_to_role(role_id: int, permission_id: int):
+    try:
+        updated_role = role_service.assign_permission_to_role(role_id, permission_id)
+        return JsonResponse(updated_role.model_dump_json(), status=200)
+
+    except PermissionNotFound:
+        return jsonify({"error": "Permission not found"}), 404
