@@ -19,7 +19,10 @@ class Role(Base):
         collection_class=set,
     )
 
-    users: Mapped[list[User]] = relationship(back_populates="role")
+    users: Mapped[list[User]] = relationship(
+        back_populates="role",
+        cascade="all, delete-orphan",  # HACK: this deletes all users if role was removed
+    )
 
     def __str__(self) -> str:
         return self.name
