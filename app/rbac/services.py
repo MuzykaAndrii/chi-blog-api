@@ -1,6 +1,8 @@
+from sqlalchemy.exc import IntegrityError
+
 from app.rbac.dao import PermissionDAO, RoleDAO
-from app.rbac.dto import RoleReadDTO, RolesListReadDTO
-from app.rbac.exceptions import RoleNotFound
+from app.rbac.dto import RoleReadDTO, RoleWithPermsReadDTO, RolesWithPermsListReadDTO
+from app.rbac.exceptions import RoleAlreadyExists, RoleNotFound
 
 
 class RoleService:
@@ -17,19 +19,27 @@ class RoleService:
         self._default_role = default_role
         self._base_roles.add(default_role)
 
-    def get_all_roles(self) -> RolesListReadDTO:
+    def get_all_roles(self) -> RolesWithPermsListReadDTO:
         """Get all roles."""
         roles = self._role_dao.get_all(load_permissions=True)
-        return RolesListReadDTO(roles)
+        return RolesWithPermsListReadDTO(roles)
 
-    def get_role_by_id(self, role_id: int) -> RoleReadDTO:
+    def get_role_by_id(self, role_id: int) -> RoleWithPermsReadDTO:
         """Get a single role by ID."""
         role = self._role_dao.get_one(role_id)
 
         if not role:
             raise RoleNotFound
 
-        return RoleReadDTO.model_validate(role)
+        return RoleWithPermsReadDTO.model_validate(role)
+
+    def create_role(self, role_data: dict) -> RoleWithPermsReadDTO:
+        try:
+            created_role = self._role_dao.create(**role_data)
+        except IntegrityError:
+            raise RoleAlreadyExists
+
+        return RoleReadDTO.model_validate(created_role)
 
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging

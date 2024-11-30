@@ -4,3 +4,7 @@ class RoleError(Exception):
 
 class RoleNotFound(RoleError):
     """Exception what occurred when role not found"""
+
+
+class RoleAlreadyExists(RoleError):
+    """Exception what occurred when role already exists"""
