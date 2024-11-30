@@ -50,3 +50,9 @@ def update_role(role_id: int):
 def delete_role(role_id: int):
     role_service.delete_role(role_id)
     return JsonResponse(status=204)
+
+
+@router.get("/<int:role_id>/permissions")
+def get_role_permissions(role_id: int):
+    permissions = role_service.get_role_permissions(role_id)
+    return JsonResponse(permissions.model_dump_json(), status=200)

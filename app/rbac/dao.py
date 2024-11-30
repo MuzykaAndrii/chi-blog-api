@@ -20,7 +20,7 @@ class RoleDAO(BaseDAO[Role]):
             return roles_with_permissions.scalars().all()
 
     def get_one(self, id_: int, load_permissions: bool = False) -> Role | None:
-        if load_permissions:
+        if not load_permissions:
             return super().get_one(id_)
 
         with self._sf() as session:

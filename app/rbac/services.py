@@ -1,7 +1,12 @@
 from sqlalchemy.exc import IntegrityError
 
 from app.rbac.dao import PermissionDAO, RoleDAO
-from app.rbac.dto import RoleReadDTO, RoleWithPermsReadDTO, RolesWithPermsListReadDTO
+from app.rbac.dto import (
+    RoleReadDTO,
+    RoleWithPermsReadDTO,
+    RolesWithPermsListReadDTO,
+    PermissionsListReadDTO,
+)
 from app.rbac.exceptions import RoleAlreadyExists, RoleNotFound
 
 
@@ -63,6 +68,15 @@ class RoleService:
             raise RoleNotFound
 
         self._role_dao.delete(role_id)
+
+    def get_role_permissions(self, role_id: int) -> PermissionsListReadDTO:
+        """Retrieves all permissions assigned to a role."""
+        role = self._role_dao.get_one(role_id, load_permissions=True)
+
+        if not role:
+            raise RoleNotFound
+
+        return PermissionsListReadDTO.model_validate(role.permissions)
 
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging
