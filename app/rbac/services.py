@@ -41,6 +41,20 @@ class RoleService:
 
         return RoleReadDTO.model_validate(created_role)
 
+    def update_role(self, role_id: int, role_data: dict) -> RoleReadDTO:
+        """Update a role."""
+        role = self._role_dao.get_one(role_id)
+
+        if not role:
+            raise RoleNotFound
+
+        try:
+            updated_role = self._role_dao.update(role_id, **role_data)
+        except IntegrityError:
+            raise RoleAlreadyExists
+
+        return RoleReadDTO.model_validate(updated_role)
+
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging
 

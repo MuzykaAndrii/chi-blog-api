@@ -1,11 +1,16 @@
 from flask import Blueprint, jsonify, request
 
 from app.app import role_service
-from app.rbac.exceptions import RoleAlreadyExists
+from app.rbac.exceptions import RoleAlreadyExists, RoleNotFound
 from app.utils.response import JsonResponse
 
 
 router = Blueprint("roles", __name__, url_prefix="/roles")
+
+
+@router.errorhandler(RoleNotFound)
+def handle_role_not_found(e: RoleNotFound):
+    return jsonify({"error": "role not found"}), 404
 
 
 @router.get("")
@@ -29,3 +34,13 @@ def create_role():
         return jsonify({"error": "Role already exists"}), 409
 
     return JsonResponse(role.model_dump_json(), status=201)
+
+
+@router.put("/<int:role_id>")
+def update_role(role_id: int):
+    try:
+        role = role_service.update_role(role_id, request.get_json())
+    except RoleAlreadyExists:
+        return jsonify({"error": "Role name already exists"}), 409
+
+    return JsonResponse(role.model_dump_json(), status=200)

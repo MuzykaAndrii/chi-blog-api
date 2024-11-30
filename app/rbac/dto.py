@@ -23,5 +23,5 @@ class RoleWithPermsReadDTO(RoleReadDTO):
     permissions: list[PermissionReadDTO]
 
 
-RolesWithPermsListReadDTO = RootModel[list[RoleReadDTO]]
+RolesWithPermsListReadDTO = RootModel[list[RoleWithPermsReadDTO]]
 RolesListReadDTO = RootModel[list[RoleReadDTO]]
