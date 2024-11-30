@@ -17,7 +17,7 @@ def handle_role_not_found(e: RoleNotFound):
 def get_all_roles():
     """Get all roles with permissions included"""
     roles = role_service.get_all_roles()
-    return JsonResponse(roles.model_dump_json(exclude_none=True), status=200)
+    return JsonResponse(roles.model_dump_json(), status=200)
 
 
 @router.get("/<int:role_id>")

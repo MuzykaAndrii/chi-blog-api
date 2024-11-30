@@ -15,6 +15,7 @@ class Role(Base):
     permissions: Mapped[Set["Permission"]] = relationship(
         secondary="roles_permissions",
         back_populates="roles",
+        cascade="all, delete-orphan",
         collection_class=set,
     )
 
