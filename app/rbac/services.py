@@ -55,6 +55,15 @@ class RoleService:
 
         return RoleReadDTO.model_validate(updated_role)
 
+    def delete_role(self, role_id: int) -> None:
+        """Delete a role."""
+        role = self._role_dao.get_one(role_id)
+
+        if not role:
+            raise RoleNotFound
+
+        self._role_dao.delete(role_id)
+
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging
 

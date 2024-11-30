@@ -44,3 +44,9 @@ def update_role(role_id: int):
         return jsonify({"error": "Role name already exists"}), 409
 
     return JsonResponse(role.model_dump_json(), status=200)
+
+
+@router.delete("/<int:role_id>")
+def delete_role(role_id: int):
+    role_service.delete_role(role_id)
+    return JsonResponse(status=204)
