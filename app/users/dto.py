@@ -32,7 +32,7 @@ class UserReadDTO(BaseModel):
     id: int
     username: str
     email: EmailStr
-    role: str | None = None
+    role: str
 
     @field_validator("role", mode="before")
     @classmethod
