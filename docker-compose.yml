@@ -32,6 +32,7 @@ services:
         condition: service_healthy
     volumes:
       - ./app:/blog/app
+      - ./tests:/blog/tests
     networks:
       - blog-network
 
