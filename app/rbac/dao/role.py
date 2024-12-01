@@ -1,9 +1,8 @@
-from app.db.dao import BaseDAO
-from app.rbac.models import Permission, Role
-
-
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+
+from app.db.dao import BaseDAO
+from app.rbac.models import Permission, Role
 
 
 class RoleDAO(BaseDAO[Role]):

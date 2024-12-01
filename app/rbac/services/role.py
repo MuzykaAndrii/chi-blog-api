@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from app.rbac.dao.permission import PermissionDAO
 from app.rbac.dao.role import RoleDAO
 from app.rbac.dto import (
@@ -7,9 +9,6 @@ from app.rbac.dto import (
     RolesWithPermsListReadDTO,
 )
 from app.rbac.exceptions import PermissionNotFound, RoleAlreadyExists, RoleNotFound
-
-
-from sqlalchemy.exc import IntegrityError
 
 
 class RoleService:

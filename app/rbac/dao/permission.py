@@ -1,8 +1,7 @@
+from sqlalchemy import select
+
 from app.db.dao import BaseDAO
 from app.rbac.models import Permission
-
-
-from sqlalchemy import select
 
 
 class PermissionDAO(BaseDAO[Permission]):
