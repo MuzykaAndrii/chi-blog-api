@@ -7,8 +7,9 @@ from app.articles.services import ArticleService
 from app.auth.config import AuthSettings
 from app.auth.jwt import JwtManager
 from app.auth.services import AuthService
+from app.auth.swagger.securityschema import SECURITY_SCHEMA
 from app.db.config import DbSettings
-from app.config import ENV_FILE_PATH, SWAGGER_TEMPLATE_FILEPATH
+from app.config import ENV_FILE_PATH
 from app.db.database import Database
 from app.rbac.dao.role import RoleDAO
 from app.rbac.rbac import RoleBasedAccessController
@@ -51,7 +52,7 @@ def create_app():
     from flasgger import Swagger
     from flask_cors import CORS
 
-    swagger = Swagger(app)
+    swagger = Swagger(app, template=SECURITY_SCHEMA)
 
     CORS(app)
 

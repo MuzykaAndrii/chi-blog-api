@@ -39,4 +39,5 @@ LOGIN_USER = {
             "content": {"application/json": {"example": {"error": "Invalid password"}}},
         },
     },
+    "security": [{"BearerAuth": []}],
 }
