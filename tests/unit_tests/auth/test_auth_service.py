@@ -2,13 +2,16 @@ from datetime import timedelta
 from unittest.mock import MagicMock
 from flask import Flask
 import pytest
+from app.auth.exceptions import NotAuthenticated
 from app.auth.jwt import JwtManager
 from app.auth.services import AuthService
 
 
 @pytest.fixture
-def jwt_manager():
-    return JwtManager("HS256", "test_secret", timedelta(days=1))
+def jwt_manager() -> JwtManager:
+    manager = MagicMock()
+    manager.create_token.return_value = "jwt token"
+    return manager
 
 
 @pytest.fixture
@@ -30,5 +33,17 @@ def test_login_user(test_app: Flask, auth_service: AuthService):
     with test_app.test_request_context():
         response = auth_service.login_user(credentials)
 
+    json_response = response.get_json()
+
     assert response.status_code == 200
-    assert "token" in response.get_json()
+    assert "token" in json_response.keys()
+    assert "jwt token" in json_response.values()
+
+
+def test_login_user_invalid_credentials(auth_service: AuthService, mock_user_service):
+    mock_user_service.get_by_credentials.side_effect = NotAuthenticated
+
+    credentials = {"username": "test", "password": "wrongpassword"}
+
+    with pytest.raises(NotAuthenticated):
+        auth_service.login_user(credentials)
