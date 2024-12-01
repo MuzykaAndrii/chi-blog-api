@@ -1,11 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from flasgger import swag_from
 
 from app.app import rbac
 from app.app import role_service
 from app.rbac.exceptions import PermissionNotFound, RoleAlreadyExists, RoleNotFound
 from app.rbac.swagger.docs import role as role_docs
-from app.utils.response import JsonResponse
+from app.base.response import DtoResponse
 
 
 router = Blueprint("roles", __name__, url_prefix="/roles")
@@ -22,7 +22,7 @@ def handle_role_not_found(e: RoleNotFound):
 def get_all_roles():
     """Get all roles with permissions included"""
     roles = role_service.get_all_roles()
-    return JsonResponse(roles.model_dump_json(), status=200)
+    return DtoResponse(roles, status=200)
 
 
 @router.get("/<int:role_id>")
@@ -30,7 +30,7 @@ def get_all_roles():
 @swag_from(role_docs.GET_ROLE)
 def get_role(role_id: int):
     role = role_service.get_role_by_id(role_id)
-    return JsonResponse(role.model_dump_json(), status=200)
+    return DtoResponse(role, status=200)
 
 
 @router.post("")
@@ -42,7 +42,7 @@ def create_role():
     except RoleAlreadyExists:
         return jsonify({"error": "Role already exists"}), 409
 
-    return JsonResponse(role.model_dump_json(), status=201)
+    return DtoResponse(role, status=201)
 
 
 @router.put("/<int:role_id>")
@@ -54,7 +54,7 @@ def update_role(role_id: int):
     except RoleAlreadyExists:
         return jsonify({"error": "Role name already exists"}), 409
 
-    return JsonResponse(role.model_dump_json(), status=200)
+    return DtoResponse(role, status=200)
 
 
 @router.delete("/<int:role_id>")
@@ -62,7 +62,7 @@ def update_role(role_id: int):
 @swag_from(role_docs.DELETE_ROLE)
 def delete_role(role_id: int):
     role_service.delete_role(role_id)
-    return JsonResponse(status=204)
+    return Response(status=204)
 
 
 @router.get("/<int:role_id>/permissions")
@@ -70,7 +70,7 @@ def delete_role(role_id: int):
 @swag_from(role_docs.GET_ROLE_PERMISSIONS)
 def get_role_permissions(role_id: int):
     permissions = role_service.get_role_permissions(role_id)
-    return JsonResponse(permissions.model_dump_json(), status=200)
+    return DtoResponse(permissions, status=200)
 
 
 @router.post("/<int:role_id>/permissions/<int:permission_id>")
@@ -81,7 +81,7 @@ def assign_permission_to_role(role_id: int, permission_id: int):
         new_permissions_list = role_service.assign_permission_to_role(
             role_id, permission_id
         )
-        return JsonResponse(new_permissions_list.model_dump_json(), status=200)
+        return DtoResponse(new_permissions_list, status=200)
 
     except PermissionNotFound:
         return jsonify({"error": "Permission not found"}), 404
@@ -95,7 +95,7 @@ def remove_permission_from_role(role_id: int, permission_id: int):
         new_permissions_list = role_service.remove_permission_from_role(
             role_id, permission_id
         )
-        return JsonResponse(new_permissions_list.model_dump_json(), status=200)
+        return DtoResponse(new_permissions_list, status=200)
 
     except PermissionNotFound:
         return jsonify({"error": "Permission not found"}), 404

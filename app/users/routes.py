@@ -1,9 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from flasgger import swag_from
 
 from app.app import user_service, rbac
 from app.users.exceptions import UserEmailAlreadyExists, UsernameAlreadyExists
-from app.utils.response import JsonResponse
+from app.base.response import DtoResponse
 from app.users.swagger import docs
 
 router = Blueprint("users", __name__, url_prefix="/users")
@@ -29,14 +29,14 @@ def get_users_list():
     else:
         users = user_service.get_all_users()
 
-    return JsonResponse(users.model_dump_json())
+    return DtoResponse(users)
 
 
 @router.get("/<int:user_id>")
 @swag_from(docs.GET_USER)
 def get_user(user_id: int):
     user = user_service.get_user_by_id(user_id)
-    return JsonResponse(user.model_dump_json())
+    return DtoResponse(user)
 
 
 @router.post("")
@@ -44,7 +44,7 @@ def get_user(user_id: int):
 @swag_from(docs.CREATE_USER)
 def create_user():
     user = user_service.create(request.get_json())
-    return JsonResponse(user.model_dump_json(), status=201)
+    return DtoResponse(user, status=201)
 
 
 @router.put("/<int:user_id>")
@@ -52,7 +52,7 @@ def create_user():
 @swag_from(docs.UPDATE_USER)
 def update_user(user_id: int):
     updated_user = user_service.update_user(user_id, request.get_json())
-    return JsonResponse(updated_user.model_dump_json(), status=200)
+    return DtoResponse(updated_user, status=200)
 
 
 @router.delete("/<int:user_id>")
@@ -60,4 +60,4 @@ def update_user(user_id: int):
 @swag_from(docs.DELETE_USER)
 def delete_user(user_id: int):
     user_service.delete_user(user_id)
-    return JsonResponse(status=204)
+    return Response(status=204)

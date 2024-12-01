@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from pydantic import ValidationError
 
 from app.users.exceptions import UserNotFound
-from app.utils.response import JsonResponse
+from app.base.response import DtoResponse
 
 
 def register_error_handlers(app: Flask):
@@ -15,4 +15,4 @@ def register_error_handlers(app: Flask):
 
     @app.errorhandler(ValidationError)
     def handle_validation_error(e: ValidationError):
-        return JsonResponse(e.json(), status=400)
+        return DtoResponse(e.json(), status=400)

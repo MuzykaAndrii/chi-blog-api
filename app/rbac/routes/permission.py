@@ -1,9 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from flasgger import swag_from
 
 from app.app import rbac
 from app.rbac.exceptions import PermissionAlreadyExists, PermissionNotFound
-from app.utils.response import JsonResponse
+from app.base.response import DtoResponse
 from app.app import permission_service
 from app.rbac.swagger.docs import permission as perm_docs
 
@@ -26,7 +26,7 @@ def handle_permission_already_exists(e: PermissionAlreadyExists):
 @swag_from(perm_docs.GET_PERMISSIONS)
 def get_all_permissions():
     permissions = permission_service.get_all_permissions()
-    return JsonResponse(permissions.model_dump_json(), status=200)
+    return DtoResponse(permissions, status=200)
 
 
 @router.get("/<int:permission_id>")
@@ -34,7 +34,7 @@ def get_all_permissions():
 @swag_from(perm_docs.GET_PERMISSION)
 def get_permission(permission_id: int):
     permission = permission_service.get_permission_by_id(permission_id)
-    return JsonResponse(permission.model_dump_json(), status=200)
+    return DtoResponse(permission, status=200)
 
 
 @router.post("")
@@ -43,7 +43,7 @@ def get_permission(permission_id: int):
 def create_permission():
     permission = permission_service.create_permission(request.get_json())
 
-    return JsonResponse(permission.model_dump_json(), status=201)
+    return DtoResponse(permission, status=201)
 
 
 @router.put("/<int:permission_id>")
@@ -52,7 +52,7 @@ def create_permission():
 def update_permission(permission_id: int):
     permission = permission_service.update_permission(permission_id, request.get_json())
 
-    return JsonResponse(permission.model_dump_json(), status=200)
+    return DtoResponse(permission, status=200)
 
 
 @router.delete("/<int:permission_id>")
@@ -60,4 +60,4 @@ def update_permission(permission_id: int):
 @swag_from(perm_docs.DELETE_PERMISSION)
 def delete_permission(permission_id: int):
     permission_service.delete_permission(permission_id)
-    return JsonResponse(status=204)
+    return Response(status=204)

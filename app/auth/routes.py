@@ -1,8 +1,8 @@
-from flask import request, Blueprint
+from flask import jsonify, request, Blueprint
 from flasgger import swag_from
 
 from app.app import auth_service
-from app.utils.response import JsonResponse
+from app.base.response import DtoResponse
 from app.users.exceptions import InvalidPassword
 from app.auth.swagger import docs
 
@@ -18,4 +18,4 @@ def login():
         return auth_service.login_user(request.get_json())
 
     except InvalidPassword:
-        return JsonResponse({"error": "Invalid password"}, status=401)
+        return jsonify({"error": "Invalid password"}), 401
