@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify, request
+from flasgger import swag_from
 
 from app.app import user_service, rbac
 from app.users.exceptions import UserEmailAlreadyExists, UsernameAlreadyExists
 from app.utils.response import JsonResponse
-
+from app.users.swagger import docs
 
 router = Blueprint("users", __name__, url_prefix="/users")
 
@@ -19,6 +20,7 @@ def handle_username_exists(e: UsernameAlreadyExists):
 
 
 @router.get("")
+@swag_from(docs.GET_USERS_LIST)
 def get_users_list():
     search_query = request.args.get("name", None)
 
@@ -31,14 +33,15 @@ def get_users_list():
 
 
 @router.get("/<int:user_id>")
+@swag_from(docs.GET_USER)
 def get_user(user_id: int):
     user = user_service.get_user_by_id(user_id)
-
     return JsonResponse(user.model_dump_json())
 
 
 @router.post("")
 @rbac.permission_required("users.can_create")
+@swag_from(docs.CREATE_USER)
 def create_user():
     user = user_service.create(request.get_json())
     return JsonResponse(user.model_dump_json(), status=201)
@@ -46,6 +49,7 @@ def create_user():
 
 @router.put("/<int:user_id>")
 @rbac.permission_required("users.can_update")
+@swag_from(docs.UPDATE_USER)
 def update_user(user_id: int):
     updated_user = user_service.update_user(user_id, request.get_json())
     return JsonResponse(updated_user.model_dump_json(), status=200)
@@ -53,6 +57,7 @@ def update_user(user_id: int):
 
 @router.delete("/<int:user_id>")
 @rbac.permission_required("users.can_delete")
+@swag_from(docs.DELETE_USER)
 def delete_user(user_id: int):
     user_service.delete_user(user_id)
     return JsonResponse(status=204)

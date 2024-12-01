@@ -8,7 +8,7 @@ from app.auth.config import AuthSettings
 from app.auth.jwt import JwtManager
 from app.auth.services import AuthService
 from app.db.config import DbSettings
-from app.config import ENV_FILE_PATH
+from app.config import ENV_FILE_PATH, SWAGGER_TEMPLATE_FILEPATH
 from app.db.database import Database
 from app.rbac.dao.role import RoleDAO
 from app.rbac.rbac import RoleBasedAccessController
@@ -48,6 +48,13 @@ rbac = RoleBasedAccessController(auth_service, user_service)
 
 def create_app():
     app = Flask(__name__)
+    from flasgger import Swagger
+    from flask_cors import CORS
+
+    swagger = Swagger(app)
+
+    CORS(app)
+
     from app.users.routes import router as users_router
     from app.auth.routes import router as auth_router
     from app.articles.routes import router as articles_router
