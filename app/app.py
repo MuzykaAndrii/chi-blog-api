@@ -12,6 +12,7 @@ from app.config import ENV_FILE_PATH
 from app.db.database import Database
 from app.rbac.dao.role import RoleDAO
 from app.rbac.rbac import RoleBasedAccessController
+from app.rbac.services.permission import PermissionService
 from app.rbac.services.role import RoleService
 from app.rbac.dao.permission import PermissionDAO
 from app.users.dao import UserDAO
@@ -22,6 +23,8 @@ db_settings = DbSettings(_env_file=ENV_FILE_PATH)
 db = Database(db_settings)
 
 permission_dao = PermissionDAO(db.session_factory)
+permission_service = PermissionService(permission_dao)
+
 role_dao = RoleDAO(db.session_factory)
 role_service = RoleService(
     role_dao=role_dao,
@@ -49,11 +52,13 @@ def create_app():
     from app.auth.routes import router as auth_router
     from app.articles.routes import router as articles_router
     from app.rbac.routes.role import router as role_router
+    from app.rbac.routes.permission import router as permission_router
 
     app.register_blueprint(users_router)
     app.register_blueprint(auth_router)
     app.register_blueprint(articles_router)
     app.register_blueprint(role_router)
+    app.register_blueprint(permission_router)
 
     from app.error_handlers import register_error_handlers
 

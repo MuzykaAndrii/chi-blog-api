@@ -12,6 +12,10 @@ class PermissionReadDTO(BaseModel):
     name: str
 
 
+class PermissionCreateDTO(BaseModel):
+    name: str
+
+
 class RoleReadDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
