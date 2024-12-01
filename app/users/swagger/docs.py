@@ -96,7 +96,7 @@ CREATE_USER = {
         },
         "400": {"description": "Validation error or user already exists"},
     },
-    "security": [{"Bearer": []}],
+    "security": [{"JWT Cookie": []}],
 }
 
 UPDATE_USER = {
@@ -142,7 +142,7 @@ UPDATE_USER = {
         "400": {"description": "Validation error"},
         "404": {"description": "User not found"},
     },
-    "security": [{"Bearer": []}],
+    "security": [{"JWT Cookie": []}],
 }
 
 DELETE_USER = {
@@ -162,5 +162,5 @@ DELETE_USER = {
         "204": {"description": "User successfully deleted"},
         "404": {"description": "User not found"},
     },
-    "security": [{"Bearer": []}],
+    "security": [{"JWT Cookie": []}],
 }
