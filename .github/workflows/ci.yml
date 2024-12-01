@@ -35,4 +35,7 @@ jobs:
         run: docker build -t blog-api:test .
 
       - name: Run migrations
-        run: docker run --network=${{ job.services.test-db.network }} --entrypoint '/bin/sh' blog-api:test alembic upgrade head 
+        run: docker run --network=${{ job.services.test-db.network }} blog-api:test alembic upgrade head
+      
+      - name: Run migrations
+        run: docker run --network=${{ job.services.test-db.network }} blog-api:test pytest -s -v
