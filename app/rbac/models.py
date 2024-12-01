@@ -15,7 +15,6 @@ class Role(Base):
     permissions: Mapped[Set["Permission"]] = relationship(
         secondary="roles_permissions",
         back_populates="roles",
-        cascade="all, delete-orphan",
         collection_class=set,
     )
 
@@ -49,6 +48,14 @@ class Permission(Base):
 roles_permissions = Table(
     "roles_permissions",
     Base.metadata,
-    Column("role_id", ForeignKey("roles.id"), primary_key=True),
-    Column("permission_id", ForeignKey("permissions.id"), primary_key=True),
+    Column(
+        "role_id",
+        ForeignKey("roles.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "permission_id",
+        ForeignKey("permissions.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
 )
