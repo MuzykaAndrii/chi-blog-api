@@ -3,3 +3,6 @@ uplocal:
 
 up:
 	docker compose --env-file ./secrets/.env up --build -d
+
+logs:
+	docker logs --follow blog-api
