@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from app.app import rbac
 from app.app import role_service
 from app.rbac.exceptions import PermissionNotFound, RoleAlreadyExists, RoleNotFound
 from app.utils.response import JsonResponse
@@ -14,6 +15,7 @@ def handle_role_not_found(e: RoleNotFound):
 
 
 @router.get("")
+@rbac.permission_required("roles.can_view")
 def get_all_roles():
     """Get all roles with permissions included"""
     roles = role_service.get_all_roles()
@@ -21,12 +23,14 @@ def get_all_roles():
 
 
 @router.get("/<int:role_id>")
+@rbac.permission_required("roles.can_view")
 def get_role(role_id: int):
     role = role_service.get_role_by_id(role_id)
     return JsonResponse(role.model_dump_json(), status=200)
 
 
 @router.post("")
+@rbac.permission_required("roles.can_create")
 def create_role():
     try:
         role = role_service.create_role(request.get_json())
@@ -37,6 +41,7 @@ def create_role():
 
 
 @router.put("/<int:role_id>")
+@rbac.permission_required("roles.can_update")
 def update_role(role_id: int):
     try:
         role = role_service.update_role(role_id, request.get_json())
@@ -47,18 +52,21 @@ def update_role(role_id: int):
 
 
 @router.delete("/<int:role_id>")
+@rbac.permission_required("roles.can_delete")
 def delete_role(role_id: int):
     role_service.delete_role(role_id)
     return JsonResponse(status=204)
 
 
 @router.get("/<int:role_id>/permissions")
+@rbac.permission_required("roles.can_view")
 def get_role_permissions(role_id: int):
     permissions = role_service.get_role_permissions(role_id)
     return JsonResponse(permissions.model_dump_json(), status=200)
 
 
 @router.post("/<int:role_id>/permissions/<int:permission_id>")
+@rbac.permission_required("roles.can_assign_permissions")
 def assign_permission_to_role(role_id: int, permission_id: int):
     try:
         new_permissions_list = role_service.assign_permission_to_role(
@@ -71,6 +79,7 @@ def assign_permission_to_role(role_id: int, permission_id: int):
 
 
 @router.delete("/<int:role_id>/permissions/<int:permission_id>")
+@rbac.permission_required("roles.can_remove_permissions")
 def remove_permission_from_role(role_id: int, permission_id: int):
     try:
         new_permissions_list = role_service.remove_permission_from_role(
