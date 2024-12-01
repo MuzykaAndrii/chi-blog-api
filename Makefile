@@ -4,6 +4,9 @@ uplocal:
 test:
 	docker exec -t blog-api pytest -s -v
 
+cov:
+	docker exec -t blog-api pytest -s -v --cov
+
 up:
 	docker compose --env-file ./secrets/.env up --build -d
 
