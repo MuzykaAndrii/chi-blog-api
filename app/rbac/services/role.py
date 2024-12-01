@@ -32,10 +32,7 @@ class RoleService:
 
     def get_role_by_id(self, role_id: int) -> RoleWithPermsReadDTO:
         """Get a single role by ID."""
-        role = self._role_dao.get_one(role_id)
-
-        if not role:
-            raise RoleNotFound
+        role = self._get_or_raise(role_id)
 
         return RoleWithPermsReadDTO.model_validate(role)
 
@@ -49,10 +46,7 @@ class RoleService:
 
     def update_role(self, role_id: int, role_data: dict) -> RoleReadDTO:
         """Update a role."""
-        role = self._role_dao.get_one(role_id)
-
-        if not role:
-            raise RoleNotFound
+        self._get_or_raise(role_id)
 
         try:
             updated_role = self._role_dao.update(role_id, **role_data)
@@ -63,26 +57,18 @@ class RoleService:
 
     def delete_role(self, role_id: int) -> None:
         """Delete a role."""
-        role = self._role_dao.get_one(role_id)
-
-        if not role:
-            raise RoleNotFound
+        self._get_or_raise(role_id)
 
         self._role_dao.delete(role_id)
 
     def get_role_permissions(self, role_id: int) -> PermissionsListReadDTO:
         """Retrieves all permissions assigned to a role."""
-        role = self._role_dao.get_one(role_id, load_permissions=True)
-
-        if not role:
-            raise RoleNotFound
+        role = self._get_or_raise(role_id, load_permissions=True)
 
         return PermissionsListReadDTO.model_validate(role.permissions)
 
     def assign_permission_to_role(self, role_id: int, permission_id: int):
-        role = self._role_dao.get_one(role_id, load_permissions=True)
-        if not role:
-            raise RoleNotFound
+        role = self._get_or_raise(role_id, load_permissions=True)
 
         permission = self._perm_dao.get_one(permission_id)
         if not permission:
@@ -93,9 +79,7 @@ class RoleService:
         return PermissionsListReadDTO.model_validate(updated_role.permissions)
 
     def remove_permission_from_role(self, role_id: int, permission_id: int):
-        role = self._role_dao.get_one(role_id, load_permissions=True)
-        if not role:
-            raise RoleNotFound
+        role = self._get_or_raise(role_id, load_permissions=True)
 
         permission = self._perm_dao.get_one(permission_id)
         if not permission:
@@ -104,6 +88,14 @@ class RoleService:
         updated_role = self._role_dao.remove_permission(role, permission)
 
         return PermissionsListReadDTO.model_validate(updated_role.permissions)
+
+    def _get_or_raise(self, role_id: int, **kwargs):
+        role = self._role_dao.get_one(role_id, **kwargs)
+
+        if not role:
+            raise RoleNotFound
+
+        return role
 
     def create_base_roles_if_not_exists(self):
         # TODO: refactor prints to logging

@@ -20,10 +20,7 @@ class ArticleService:
         return ArticlesListReadDTO(user_articles)
 
     def get_article_by_id(self, article_id: int) -> ArticleReadDTO:
-        article = self._dao.get_one(article_id)
-
-        if not article:
-            raise ArticleNotFound
+        article = self._get_or_raise(article_id)
 
         return ArticleReadDTO.model_validate(article)
 
@@ -45,20 +42,21 @@ class ArticleService:
         return ArticlesListReadDTO.model_validate(found_articles)
 
     def delete_article(self, article_id: int) -> None:
-        article = self._dao.get_one(article_id)
-
-        if not article:
-            raise ArticleNotFound
-
+        self._get_or_raise(article_id)
         return self._dao.delete(article_id)
 
     def update_article(self, article_id: int, update_data: dict) -> ArticleReadDTO:
-        article = self._dao.get_one(article_id)
-
-        if not article:
-            raise ArticleNotFound
+        self._get_or_raise(article_id)
 
         validated_article = ArticleCreateDTO(**update_data)
         updated_article = self._dao.update(article_id, **validated_article.model_dump())
 
         return ArticleReadDTO.model_validate(updated_article)
+
+    def _get_or_raise(self, article_id: int):
+        article = self._dao.get_one(article_id)
+
+        if not article:
+            raise ArticleNotFound
+
+        return article

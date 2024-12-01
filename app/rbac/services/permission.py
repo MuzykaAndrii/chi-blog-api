@@ -14,10 +14,7 @@ class PermissionService:
         return PermissionsListReadDTO.model_validate(permissions)
 
     def get_permission_by_id(self, permission_id: int) -> PermissionReadDTO:
-        permission = self._permission_dao.get_one(permission_id)
-
-        if not permission:
-            raise PermissionNotFound
+        permission = self._get_or_raise(permission_id)
 
         return PermissionReadDTO.model_validate(permission)
 
@@ -43,9 +40,14 @@ class PermissionService:
         return PermissionReadDTO.model_validate(permission)
 
     def delete_permission(self, permission_id: int) -> None:
+        self._get_or_raise(permission_id)
+
+        return self._permission_dao.delete(permission_id)
+
+    def _get_or_raise(self, permission_id: int):
         permission = self._permission_dao.get_one(permission_id)
 
         if not permission:
             raise PermissionNotFound
 
-        return self._permission_dao.delete(permission_id)
+        return permission

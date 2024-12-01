@@ -22,7 +22,7 @@ class UserService:
         self.roles = default_role_id_getter
 
     def get_user_by_id(self, user_id: int) -> UserReadDTO:
-        user = self._get_user_or_raise(user_id)
+        user = self._get_or_raise(user_id)
         return UserReadDTO.model_validate(user)
 
     def search_users_by_name(self, name: str) -> UsersListReadDTO:
@@ -60,7 +60,7 @@ class UserService:
 
     def update_user(self, user_id: int, user_data: dict) -> UserReadDTO:
         """Updates user with provided update data."""
-        self._get_user_or_raise(user_id)  # Ensure user exists before update
+        self._get_or_raise(user_id)  # Ensure user exists before update
 
         validated_user = UserCreateDTO(**user_data)
 
@@ -75,7 +75,7 @@ class UserService:
         return UserReadDTO.model_validate(updated_user)
 
     def delete_user(self, user_id: int) -> None:
-        self._get_user_or_raise(user_id)
+        self._get_or_raise(user_id)
         self._dao.delete(user_id)
 
     def user_has_permission(self, user_id: int, permission: str) -> bool:
@@ -87,7 +87,7 @@ class UserService:
 
         return permission in {perm.name for perm in user.role.permissions}
 
-    def _get_user_or_raise(self, user_id: int):
+    def _get_or_raise(self, user_id: int):
         user = self._dao.get_one(user_id)
         if not user:
             raise UserNotFound
