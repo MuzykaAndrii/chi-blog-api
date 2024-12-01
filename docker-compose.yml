@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+
+  db:
+    image: postgres:15.6-alpine
+    container_name: blog-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_USER}"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 80s
+    volumes:
+      - blog-pgdb-data:/var/lib/postgresql/data
+    networks:
+      - blog-network
+
+  bookstore:
+    build:
+      context: .
+    container_name: blog-api
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/blog/app
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge
+
+volumes:
+  blog-pgdb-data:
