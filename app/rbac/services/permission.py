@@ -1,6 +1,8 @@
+from sqlalchemy.exc import IntegrityError
+
 from app.rbac.dao.permission import PermissionDAO
 from app.rbac.dto import PermissionReadDTO, PermissionsListReadDTO
-from app.rbac.exceptions import PermissionNotFound
+from app.rbac.exceptions import PermissionAlreadyExists, PermissionNotFound
 
 
 class PermissionService:
@@ -18,3 +20,32 @@ class PermissionService:
             raise PermissionNotFound
 
         return PermissionReadDTO.model_validate(permission)
+
+    def create_permission(self, permission_data: dict) -> PermissionReadDTO:
+        try:
+            permission = self._permission_dao.create(**permission_data)
+        except IntegrityError:
+            raise PermissionAlreadyExists
+
+        return PermissionReadDTO.model_validate(permission)
+
+    def update_permission(
+        self, permission_id: int, permission_data: dict
+    ) -> PermissionReadDTO:
+        try:
+            permission = self._permission_dao.update(permission_id, **permission_data)
+        except IntegrityError:
+            raise PermissionAlreadyExists
+
+        if not permission:
+            raise PermissionNotFound
+
+        return PermissionReadDTO.model_validate(permission)
+
+    def delete_permission(self, permission_id: int) -> None:
+        permission = self._permission_dao.get_one(permission_id)
+
+        if not permission:
+            raise PermissionNotFound
+
+        return self._permission_dao.delete(permission_id)
