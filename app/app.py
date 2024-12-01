@@ -48,12 +48,12 @@ def create_app():
     from app.users.routes import router as users_router
     from app.auth.routes import router as auth_router
     from app.articles.routes import router as articles_router
-    from app.rbac.routes import router as rbac_router
+    from app.rbac.routes.role import router as role_router
 
     app.register_blueprint(users_router)
     app.register_blueprint(auth_router)
     app.register_blueprint(articles_router)
-    app.register_blueprint(rbac_router)
+    app.register_blueprint(role_router)
 
     from app.error_handlers import register_error_handlers
 
