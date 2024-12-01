@@ -1,6 +1,6 @@
 from datetime import timedelta
-from unittest.mock import MagicMock
-from flask import Flask
+from unittest.mock import MagicMock, patch
+from flask import Flask, jsonify
 from flask.testing import FlaskClient
 import pytest
 from app.auth.exceptions import NotAuthenticated
@@ -56,3 +56,16 @@ def test_get_current_user(auth_service: AuthService, client: FlaskClient):
     with client.application.test_request_context():
         user = auth_service.get_current_user()
         assert user.id == 1
+
+
+def test_login_required(auth_service: AuthService, test_app: Flask):
+    with patch.object(auth_service, "get_current_user", return_value=None):
+
+        @auth_service.login_required
+        def protected_route(*args, **kwargs):
+            return jsonify({"success": "Access granted"})
+
+        with test_app.test_request_context():
+            response, status_code = protected_route()
+            assert status_code == 401
+            assert response.get_json() == {"error": "not authenticated"}
