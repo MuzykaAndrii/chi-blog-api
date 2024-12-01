@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import MagicMock
 from flask import Flask
+from flask.testing import FlaskClient
 import pytest
 from app.auth.exceptions import NotAuthenticated
 from app.auth.jwt import JwtManager
@@ -47,3 +48,11 @@ def test_login_user_invalid_credentials(auth_service: AuthService, mock_user_ser
 
     with pytest.raises(NotAuthenticated):
         auth_service.login_user(credentials)
+
+
+def test_get_current_user(auth_service: AuthService, client: FlaskClient):
+    client.set_cookie(auth_service.cookie_name, "some token")
+
+    with client.application.test_request_context():
+        user = auth_service.get_current_user()
+        assert user.id == 1
