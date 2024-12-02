@@ -10,8 +10,8 @@ from app.users.dao import UserDAO
 @pytest.fixture
 def user_service() -> UserService:
     mock_dao = MagicMock(UserDAO)
-    mock_roles = MagicMock()
-    return UserService(mock_dao, mock_roles)
+    mock_role_getter = MagicMock(default_role_id=1)
+    return UserService(mock_dao, mock_role_getter)
 
 
 @pytest.fixture
@@ -20,13 +20,23 @@ def mock_user_read_data() -> dict:
         "id": 1,
         "username": "andry",
         "email": "andrymyzik@gmail.com",
-        "role": "admin",
+        "role": "viewer",
     }
 
 
 @pytest.fixture
 def mock_user_read(mock_user_read_data: dict) -> MagicMock:
     return MagicMock(**mock_user_read_data)
+
+
+@pytest.fixture
+def mock_user_create_data() -> dict:
+    return {
+        "username": "andry",
+        "email": "andrymyzik@gmail.com",
+        "password": "password123",
+        "role_id": 1,
+    }
 
 
 def test_get_user_by_id_success(user_service: UserService, mock_user_read: MagicMock):
@@ -63,3 +73,14 @@ def test_search_users_by_name_success(user_service: UserService) -> None:
     assert result.root[0].username == "testuser1"
     assert result.root[1].username == "testuser2"
     user_service._dao.search_by_name.assert_called_once_with(search_name)
+
+
+def test_create_user_success(
+    user_service: UserService, mock_user_read: MagicMock, mock_user_create_data: dict
+):
+    user_service._dao.create.return_value = mock_user_read
+
+    result = user_service.create(mock_user_create_data)
+
+    assert result.username == mock_user_read.username
+    assert result.email == mock_user_read.email
