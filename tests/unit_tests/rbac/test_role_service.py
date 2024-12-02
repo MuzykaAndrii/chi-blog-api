@@ -138,3 +138,26 @@ def test_delete_role_not_found(role_service: RoleService):
         role_service.delete_role(role_id)
 
     role_service._role_dao.get_one.assert_called_once_with(role_id)
+
+
+def test_get_role_permissions_success(
+    role_service: RoleService, mock_role_read: MagicMock
+):
+    mock_permissions = [
+        {"id": 1, "name": "users.can_create"},
+        {"id": 2, "name": "articles.can_delete"},
+    ]
+
+    mock_role_read.permissions = mock_permissions
+    role_service._role_dao.get_one.return_value = mock_role_read
+
+    result = role_service.get_role_permissions(mock_role_read.id)
+
+    assert len(result.root) == len(mock_permissions)
+    for res_perm, mock_perm in zip(result.root, mock_permissions):
+        assert res_perm.id == mock_perm["id"]
+        assert res_perm.name == mock_perm["name"]
+
+    role_service._role_dao.get_one.assert_called_once_with(
+        mock_role_read.id, load_permissions=True
+    )
