@@ -33,6 +33,16 @@ def client(app: Flask) -> FlaskClient:
     return app.test_client()
 
 
+@pytest.fixture
+def mock_user() -> dict:
+    return {"id": 1, "name": "andry"}
+
+
+@pytest.fixture
+def mock_user_json(mock_user: dict) -> str:
+    return json.dumps(mock_user)
+
+
 @patch("app.users.routes.user_service")
 def test_get_users_list_without_search(user_service: UserService, client: FlaskClient):
     mock_users = [{"id": 1, "name": "user1"}, {"id": 2, "name": "user2"}]
@@ -47,10 +57,14 @@ def test_get_users_list_without_search(user_service: UserService, client: FlaskC
 
 
 @patch("app.users.routes.user_service")
-def test_get_users_list_with_search(user_service: UserService, client: FlaskClient):
+def test_get_users_list_with_search(
+    user_service: UserService,
+    client: FlaskClient,
+    mock_user: dict,
+):
     search_q = "andry"
 
-    mock_users = [{"id": 1, "name": "andry"}]
+    mock_users = [mock_user]
     mock_users_json = json.dumps(mock_users)
     user_service.search_users_by_name.return_value = mock_users_json
 
@@ -59,3 +73,20 @@ def test_get_users_list_with_search(user_service: UserService, client: FlaskClie
     assert response.status_code == 200
     assert response.json == mock_users
     user_service.search_users_by_name.assert_called_once_with(search_q)
+
+
+@patch("app.users.routes.user_service")
+def test_get_user_by_id(
+    user_service: UserService,
+    client: FlaskClient,
+    mock_user: dict,
+    mock_user_json: str,
+):
+    user_service.get_user_by_id.return_value = mock_user_json
+
+    response = client.get("/users/1")
+
+    assert response.status_code == 200
+    assert response.json == mock_user
+
+    user_service.get_user_by_id.assert_called_once_with(1)
