@@ -119,3 +119,12 @@ def test_update_role_not_found(role_service: RoleService, mock_role_create_data:
         role_service.update_role(role_id, mock_role_create_data)
 
     role_service._role_dao.get_one.assert_called_once_with(role_id)
+
+
+def test_delete_role_success(role_service: RoleService):
+    role_id = 1
+    role_service._role_dao.get_one.return_value = MagicMock(id=role_id)
+
+    role_service.delete_role(role_id)
+
+    role_service._role_dao.delete.assert_called_once_with(role_id)
