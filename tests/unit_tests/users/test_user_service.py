@@ -132,3 +132,12 @@ def test_update_user_success(
 
     assert result.username == mock_user_read.username
     assert result.email == mock_user_read.email
+
+
+def test_update_user_not_found(
+    user_service: UserService, mock_user_create_data: dict
+) -> None:
+    user_service._dao.get_one.return_value = None
+
+    with pytest.raises(UserNotFound):
+        user_service.update_user(999, mock_user_create_data)
