@@ -73,3 +73,11 @@ def test_create_article_success(
     assert result.title == mock_article_data["title"]
     assert result.body == mock_article_data["body"]
     article_service._dao.create.assert_called_once_with(**mock_article_data, owner_id=1)
+
+
+def test_create_article_missing_field(article_service: ArticleService) -> None:
+    creator = MagicMock(id=1)
+    article_data = {"body": "body without the tittle"}
+
+    with pytest.raises(ValueError):
+        article_service.create_article(creator, article_data)
