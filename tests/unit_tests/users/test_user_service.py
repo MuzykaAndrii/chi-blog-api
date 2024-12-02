@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from app.users.exceptions import UserNotFound
 from app.users.services import UserService
 from app.users.dao import UserDAO
 
@@ -36,3 +37,13 @@ def test_get_user_by_id_success(user_service: UserService, mock_user_read: Magic
     assert result.username == mock_user_read.username
     assert result.email == mock_user_read.email
     user_service._dao.get_one.assert_called_once_with(mock_user_read.id)
+
+
+def test_get_user_by_id_not_found(user_service: UserService):
+    user_id = 999
+    user_service._dao.get_one.return_value = None
+
+    with pytest.raises(UserNotFound):
+        user_service.get_user_by_id(user_id)
+
+    user_service._dao.get_one.assert_called_once_with(999)
