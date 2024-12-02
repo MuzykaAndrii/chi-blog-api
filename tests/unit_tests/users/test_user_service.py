@@ -3,7 +3,11 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from app.users.exceptions import UserEmailAlreadyExists, UserNotFound
+from app.users.exceptions import (
+    UserEmailAlreadyExists,
+    UserNotFound,
+    UsernameAlreadyExists,
+)
 from app.users.services import UserService
 from app.users.dao import UserDAO
 
@@ -95,4 +99,25 @@ def test_create_user_email_exists(
     )
 
     with pytest.raises(UserEmailAlreadyExists):
+        user_service.create(mock_user_create_data)
+
+
+@pytest.mark.parametrize(
+    "side_effect_error, expected_exception",
+    [
+        ("users_email_key", UserEmailAlreadyExists),
+        ("users_username_key", UsernameAlreadyExists),
+    ],
+)
+def test_create_user_field_exists(
+    user_service: UserService,
+    mock_user_create_data: dict,
+    side_effect_error: str,
+    expected_exception: Exception,
+):
+    user_service._dao.create.side_effect = IntegrityError(
+        "Duplicate entry", None, side_effect_error
+    )
+
+    with pytest.raises(expected_exception):
         user_service.create(mock_user_create_data)
