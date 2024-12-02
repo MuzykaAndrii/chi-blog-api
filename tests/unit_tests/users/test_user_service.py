@@ -179,3 +179,10 @@ def test_user_has_permission_success(
 
     assert result is True
     user_service._dao.get_with_permissions.assert_called_once_with(mock_user_read.id)
+
+
+def test_user_has_permission_not_found(user_service: UserService) -> None:
+    user_service._dao.get_with_permissions.return_value = None
+
+    with pytest.raises(UserNotFound):
+        user_service.user_has_permission(999, "articles.can_edit")
