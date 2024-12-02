@@ -1,6 +1,7 @@
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 
+from app.articles.exceptions import ArticleNotFound
 from app.articles.swagger import docs
 from app.app import rbac
 from app.app import articles_service
@@ -10,6 +11,11 @@ from app.base.response import DtoResponse
 
 
 router = Blueprint("articles", __name__)
+
+
+@router.errorhandler(ArticleNotFound)
+def handle_article_not_found(e: ArticleNotFound):
+    return jsonify({"error": "Article not found"}), 404
 
 
 @router.get("/articles")
