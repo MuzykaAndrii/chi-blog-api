@@ -6,6 +6,7 @@ omit =
     */tests/*
     */migrations/*
     */protocols.py
+    */swagger/*
     ./app/app.py
     ./app/config.py
 
