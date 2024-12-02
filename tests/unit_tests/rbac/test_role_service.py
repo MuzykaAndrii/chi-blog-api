@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from sqlalchemy.exc import IntegrityError
 
-from app.rbac.exceptions import RoleNotFound, RoleAlreadyExists
+from app.rbac.exceptions import PermissionNotFound, RoleNotFound, RoleAlreadyExists
 from app.rbac.services.role import RoleService
 from app.rbac.dao.role import RoleDAO
 from app.rbac.dao.permission import PermissionDAO
@@ -188,3 +188,20 @@ def test_assign_permission_role_not_found(role_service: RoleService):
         role_id,
         load_permissions=True,
     )
+
+
+def test_assign_permission_not_found(
+    role_service: RoleService, mock_role_read: MagicMock
+):
+    permission_id = 999
+    role_service._role_dao.get_one.return_value = mock_role_read
+    role_service._perm_dao.get_one.return_value = None
+
+    with pytest.raises(PermissionNotFound):
+        role_service.assign_permission_to_role(mock_role_read.id, permission_id)
+
+    role_service._role_dao.get_one.assert_called_once_with(
+        mock_role_read.id,
+        load_permissions=True,
+    )
+    role_service._perm_dao.get_one.assert_called_once_with(permission_id)
