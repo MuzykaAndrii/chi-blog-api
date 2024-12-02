@@ -118,3 +118,17 @@ def test_get_user_articles_success(article_service: ArticleService) -> None:
     assert result.root[0].title == "Article 1"
     assert result.root[1].title == "Article 2"
     article_service._dao.get_by_owner_id.assert_called_once_with(user_id)
+
+
+def test_update_article_success(
+    article_service: ArticleService, mock_article: MagicMock, mock_article_data: dict
+) -> None:
+    article_id = 1
+    article_service._get_or_raise.return_value = None
+    article_service._dao.update.return_value = mock_article
+
+    result = article_service.update_article(article_id, mock_article_data)
+
+    assert result.title == mock_article_data["title"]
+    assert result.body == mock_article_data["body"]
+    article_service._dao.update.assert_called_once_with(article_id, **mock_article_data)
