@@ -1,9 +1,9 @@
-from copy import deepcopy
 from unittest.mock import MagicMock
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
-from app.rbac.exceptions import RoleNotFound
+from app.rbac.exceptions import RoleNotFound, RoleAlreadyExists
 from app.rbac.services.role import RoleService
 from app.rbac.dao.role import RoleDAO
 from app.rbac.dao.permission import PermissionDAO
@@ -80,4 +80,16 @@ def test_create_role_success(
     result = role_service.create_role(mock_role_create_data)
 
     assert result.name == mock_role_read.name
+    role_service._role_dao.create.assert_called_once_with(**mock_role_create_data)
+
+
+def test_create_role_name_exists(
+    role_service: RoleService,
+    mock_role_create_data: dict,
+):
+    role_service._role_dao.create.side_effect = IntegrityError(None, None, None)
+
+    with pytest.raises(RoleAlreadyExists):
+        role_service.create_role(mock_role_create_data)
+
     role_service._role_dao.create.assert_called_once_with(**mock_role_create_data)
