@@ -59,3 +59,17 @@ def test_get_article_by_id_not_found(article_service: ArticleService):
         article_service.get_article_by_id(999)
 
     article_service._dao.get_one.assert_called_once_with(999)
+
+
+def test_create_article_success(
+    article_service: ArticleService, mock_article: MagicMock, mock_article_data: dict
+) -> None:
+    creator = MagicMock(id=1)
+
+    article_service._dao.create.return_value = mock_article
+
+    result = article_service.create_article(creator, mock_article_data)
+
+    assert result.title == mock_article_data["title"]
+    assert result.body == mock_article_data["body"]
+    article_service._dao.create.assert_called_once_with(**mock_article_data, owner_id=1)
