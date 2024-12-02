@@ -5,7 +5,7 @@ from flask.testing import FlaskClient
 import pytest
 from flask import Flask, json
 
-from app.users.exceptions import UserEmailAlreadyExists
+from app.users.exceptions import UserEmailAlreadyExists, UsernameAlreadyExists
 from app.users.services import UserService
 
 
@@ -160,3 +160,15 @@ def test_create_user_email_already_exists(
 
     assert response.status_code == 400
     assert response.json == {"error": "Email already exists"}
+
+
+@patch("app.users.routes.user_service")
+def test_create_user_username_already_exists(
+    user_service: UserService, client: FlaskClient, mock_user_json: str
+):
+    user_service.create.side_effect = UsernameAlreadyExists
+
+    response = client.post("/users", json=mock_user_json)
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Username already exists"}
