@@ -93,3 +93,19 @@ def test_create_role_name_exists(
         role_service.create_role(mock_role_create_data)
 
     role_service._role_dao.create.assert_called_once_with(**mock_role_create_data)
+
+
+def test_update_role_success(
+    role_service: RoleService,
+    mock_role_create_data: dict,
+    mock_role_read: MagicMock,
+):
+    role_service._role_dao.update.return_value = mock_role_read
+
+    result = role_service.update_role(mock_role_read.id, mock_role_create_data)
+
+    assert result.name == mock_role_read.name
+    role_service._role_dao.update.assert_called_once_with(
+        mock_role_read.id,
+        **mock_role_create_data,
+    )
