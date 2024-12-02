@@ -1,5 +1,4 @@
-import functools
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from flask.testing import FlaskClient
 import pytest
@@ -9,23 +8,11 @@ from app.users.exceptions import UserEmailAlreadyExists, UsernameAlreadyExists
 from app.users.services import UserService
 
 
-class MockRBAC:
-    def permission_required(self, permission):
-        def decorator(func):
-            @functools.wraps(func)
-            def wrapper(*args, **kwargs):
-                return func(*args, **kwargs)
-
-            return wrapper
-
-        return decorator
-
-
 @pytest.fixture
-def app():
+def app(mock_rbac):
     app = Flask(__name__)
 
-    with patch("app.app.rbac", MockRBAC()):
+    with patch("app.app.rbac", mock_rbac()):
         from app.users.routes import router
 
         app.register_blueprint(router)
