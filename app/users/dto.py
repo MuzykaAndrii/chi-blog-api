@@ -36,6 +36,9 @@ class UserReadDTO(BaseModel):
     @field_validator("role", mode="before")
     @classmethod
     def assign_role_name(cls, v):
+        if isinstance(v, str):
+            return v
+
         return v.name
 
 
