@@ -5,11 +5,16 @@ omit =
     */__pycache__/*
     */tests/*
     */migrations/*
+    */protocols.py
+    ./app/app.py
+    ./app/config.py
 
 [report]
 show_missing = True
 skip_covered = False
 exclude_lines =
+    def __str__
+    def __repr__
     pragma: no cover
     if __name__ == .__main__.:
     raise NotImplementedError
