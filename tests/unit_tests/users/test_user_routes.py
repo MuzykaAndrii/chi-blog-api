@@ -111,3 +111,21 @@ def test_create_user(
     assert response.json == mock_user
 
     user_service.create.assert_called_once_with(mock_user_json)
+
+
+@patch("app.users.routes.user_service")
+def test_update_user(
+    user_service: UserService,
+    client: FlaskClient,
+    mock_user: dict,
+    mock_user_json: str,
+):
+    user_id = mock_user["id"]
+    user_service.update_user.return_value = mock_user_json
+
+    response = client.put(f"/users/{user_id}", json=mock_user_json)
+
+    assert response.status_code == 200
+    assert response.json == mock_user
+
+    user_service.update_user.assert_called_once_with(user_id, mock_user_json)
