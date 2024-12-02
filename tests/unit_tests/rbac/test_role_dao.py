@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.rbac.dao.role import RoleDAO
-from app.rbac.models import Role
+from app.rbac.models import Permission, Role
 
 
 @pytest.fixture
@@ -19,11 +19,19 @@ def mock_role_create_data() -> dict:
 
 @pytest.fixture
 def mock_role():
-    mock_role = MagicMock()
+    mock_role = MagicMock(Role)
     mock_role.id = 1
     mock_role.name = "admin"
 
     return mock_role
+
+
+@pytest.fixture
+def mock_permission() -> MagicMock:
+    mock_perm = MagicMock(Permission)
+    mock_perm.id = 1
+    mock_perm.name = "users.can_delete"
+    return mock_perm
 
 
 def test_get_role_by_id(role_dao: RoleDAO, mock_role: MagicMock):
@@ -68,3 +76,20 @@ def test_create_role(
     mock_session.add.assert_called_once()
     mock_session.commit.assert_called_once()
     assert result.name == mock_role.name
+
+
+def test_add_permission_success(role_dao: RoleDAO):
+    role = Role(id=1)
+    permission = Permission(id=1)
+    mock_session = MagicMock()
+
+    role_dao._sf.return_value.__enter__.return_value = mock_session
+    mock_session.merge.side_effect = lambda x: x
+
+    updated_role = role_dao.add_permission(role, permission)
+
+    assert permission in updated_role.permissions
+    mock_session.merge.assert_any_call(role)
+    mock_session.merge.assert_any_call(permission)
+    mock_session.refresh.assert_called_once_with(role, attribute_names=["permissions"])
+    mock_session.commit.assert_called_once()
