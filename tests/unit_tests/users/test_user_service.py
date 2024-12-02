@@ -141,3 +141,13 @@ def test_update_user_not_found(
 
     with pytest.raises(UserNotFound):
         user_service.update_user(999, mock_user_create_data)
+
+
+def test_delete_user_success(user_service: UserService) -> None:
+    user_id = 1
+    user_service._dao.get_one.return_value = MagicMock(id=1)
+    user_service._dao.delete.return_value = None
+
+    user_service.delete_user(user_id)
+
+    user_service._dao.delete.assert_called_once_with(user_id)
