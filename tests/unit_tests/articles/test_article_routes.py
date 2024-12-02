@@ -4,6 +4,7 @@ from flask.testing import FlaskClient
 import pytest
 from flask import Flask, json
 
+from app.articles.exceptions import ArticleNotFound
 from app.articles.services import ArticleService
 from app.users.dto import UserReadDTO
 
@@ -119,3 +120,17 @@ def test_get_article_by_id(
     assert response.json == mock_article
 
     articles_service.get_article_by_id.assert_called_once_with(article_id)
+
+
+@patch("app.articles.routes.articles_service")
+def test_get_article_not_found(
+    articles_service: ArticleService,
+    client: FlaskClient,
+):
+    article_id = 999
+    articles_service.get_article_by_id.side_effect = ArticleNotFound
+
+    response = client.get(f"/articles/{article_id}")
+
+    assert response.status_code == 404
+    assert response.json == {"error": "Article not found"}
