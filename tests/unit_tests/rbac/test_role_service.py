@@ -128,3 +128,13 @@ def test_delete_role_success(role_service: RoleService):
     role_service.delete_role(role_id)
 
     role_service._role_dao.delete.assert_called_once_with(role_id)
+
+
+def test_delete_role_not_found(role_service: RoleService):
+    role_id = 999
+    role_service._role_dao.get_one.return_value = None
+
+    with pytest.raises(RoleNotFound):
+        role_service.delete_role(role_id)
+
+    role_service._role_dao.get_one.assert_called_once_with(role_id)
