@@ -226,3 +226,12 @@ def test_get_by_credentials_success(
     assert result.username == mock_user_read.username
     assert result.email == mock_user_read.email
     user_service._dao.get_by_email.assert_called_once_with(creds["email"])
+
+
+def test_get_by_credentials_email_not_found(user_service: UserService) -> None:
+    creds = {"email": "andrymyzik@gmail.com", "password": "1234567890"}
+
+    user_service._dao.get_by_email.return_value = None
+
+    with pytest.raises(UserNotFound):
+        user_service.get_by_credentials(creds)
