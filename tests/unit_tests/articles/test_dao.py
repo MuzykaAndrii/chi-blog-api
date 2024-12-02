@@ -24,3 +24,16 @@ def test_get_by_owner_id(article_dao: ArticleDAO):
     assert len(result) == 2
     assert result[0].title == "Article 1"
     assert result[1].title == "Article 2"
+
+
+def test_search_by_title_or_body(article_dao: ArticleDAO):
+    mock_session = MagicMock()
+    article_dao._sf.return_value.__enter__.return_value = mock_session
+    mock_session.scalars.return_value.all.return_value = [
+        MagicMock(id=1, title="Article 1", body="Search body", owner_id=1)
+    ]
+
+    result = article_dao.search_by_title_or_body("Search")
+
+    assert len(result) == 1
+    assert result[0].title == "Article 1"
