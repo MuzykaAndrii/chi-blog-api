@@ -136,3 +136,15 @@ def test_update_article_success(
             article_id, **mock_article_data
         )
         article_service._get_or_raise.assert_called_once_with(article_id)
+
+
+def test_update_article_not_found(
+    article_service: ArticleService, mock_article_data: dict
+) -> None:
+    article_id = 999
+    article_service._dao.get_one.return_value = None
+
+    with pytest.raises(ArticleNotFound):
+        article_service.update_article(article_id, mock_article_data)
+
+    article_service._dao.get_one.assert_called_once_with(article_id)
