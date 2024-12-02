@@ -80,3 +80,29 @@ def test_permission_required_not_authenticated(
     assert status_code == 401
     assert response.json == {"error": "not authenticated"}
     mock_current_user_getter.get_current_user.assert_called_once()
+
+
+def test_permission_required_not_authorized(
+    access_controller: RoleBasedAccessController,
+    mock_current_user_getter: MagicMock,
+    mock_permission_checker: MagicMock,
+    test_app: Flask,
+):
+    user = User(id=1)
+    permission_name = "articles.can_delete"
+    mock_current_user_getter.get_current_user.return_value = user
+    mock_permission_checker.user_has_permission.return_value = False
+
+    @access_controller.permission_required(permission_name)
+    def mock_route():
+        return "Success", 200
+
+    with test_app.test_request_context():
+        response, status_code = mock_route()
+
+    assert status_code == 403
+    assert response.json == {"error": "Permission denied"}
+    mock_current_user_getter.get_current_user.assert_called_once()
+    mock_permission_checker.user_has_permission.assert_called_once_with(
+        user.id, permission_name
+    )
