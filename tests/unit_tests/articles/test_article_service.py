@@ -102,3 +102,19 @@ def test_delete_article_not_found(article_service: ArticleService) -> None:
         article_service.delete_article(article_id)
 
     article_service._dao.get_one.assert_called_once_with(article_id)
+
+
+def test_get_user_articles_success(article_service: ArticleService) -> None:
+    user_id = 1
+    mock_articles = [
+        MagicMock(id=1, title="Article 1", body="Body 1", owner_id=user_id),
+        MagicMock(id=2, title="Article 2", body="Body 2", owner_id=user_id),
+    ]
+    article_service._dao.get_by_owner_id.return_value = mock_articles
+
+    result = article_service.get_user_articles(user_id)
+
+    assert len(result.root) == 2
+    assert result.root[0].title == "Article 1"
+    assert result.root[1].title == "Article 2"
+    article_service._dao.get_by_owner_id.assert_called_once_with(user_id)
