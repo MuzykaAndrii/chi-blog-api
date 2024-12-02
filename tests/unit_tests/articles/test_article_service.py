@@ -2,6 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from app.articles.exceptions import ArticleNotFound
 from app.articles.services import ArticleService
 from app.articles.dao import ArticleDAO
 
@@ -49,3 +50,12 @@ def test_get_article_by_id(
     assert result.body == mock_article_data["body"]
 
     article_service._dao.get_one.assert_called_once_with(1)
+
+
+def test_get_article_by_id_not_found(article_service: ArticleService):
+    article_service._dao.get_one.return_value = None
+
+    with pytest.raises(ArticleNotFound):
+        article_service.get_article_by_id(999)
+
+    article_service._dao.get_one.assert_called_once_with(999)
