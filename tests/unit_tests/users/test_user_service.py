@@ -64,6 +64,21 @@ def test_get_user_by_id_not_found(user_service: UserService):
     user_service._dao.get_one.assert_called_once_with(999)
 
 
+def test_get_all_users_success(user_service: UserService) -> None:
+    mock_users = [
+        MagicMock(id=1, username="user1", email="user1@example.com", role="viewer"),
+        MagicMock(id=2, username="user2", email="user2@example.com", role="viewer"),
+    ]
+    user_service._dao.get_all.return_value = mock_users
+
+    result = user_service.get_all_users()
+
+    assert len(result.root) == 2
+    assert result.root[0].username == mock_users[0].username
+    assert result.root[1].username == mock_users[1].username
+    user_service._dao.get_all.assert_called_once()
+
+
 def test_search_users_by_name_success(user_service: UserService) -> None:
     search_name = "test"
     mock_users = [
