@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.users.dto import UserLoginDTO
 from app.users.exceptions import (
+    InvalidPassword,
     UserEmailAlreadyExists,
     UserNotFound,
     UsernameAlreadyExists,
@@ -235,3 +236,20 @@ def test_get_by_credentials_email_not_found(user_service: UserService) -> None:
 
     with pytest.raises(UserNotFound):
         user_service.get_by_credentials(creds)
+
+
+def test_get_by_credentials_invalid_password(
+    user_service: UserService, mock_user_read: MagicMock
+):
+    creds = {"email": "andrymyzik@gmail.com", "password": "wrongpassword"}
+    user_service._dao.get_by_email.return_value = mock_user_read
+
+    with patch.object(
+        UserLoginDTO, "verify_pwd", side_effect=InvalidPassword
+    ) as mock_pwd_check:
+        with pytest.raises(InvalidPassword):
+            user_service.get_by_credentials(creds)
+
+        mock_pwd_check.assert_called_once_with(mock_user_read.password_hash)
+
+    user_service._dao.get_by_email.assert_called_once_with(creds["email"])
