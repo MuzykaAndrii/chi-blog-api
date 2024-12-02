@@ -5,6 +5,7 @@ from flask.testing import FlaskClient
 import pytest
 from flask import Flask, json
 
+from app.users.exceptions import UserEmailAlreadyExists
 from app.users.services import UserService
 
 
@@ -145,3 +146,17 @@ def test_delete_user(
     assert response.data == b""
 
     user_service.delete_user.assert_called_once_with(user_id)
+
+
+@patch("app.users.routes.user_service")
+def test_create_user_email_already_exists(
+    user_service: UserService,
+    client: FlaskClient,
+    mock_user_json: str,
+):
+    user_service.create.side_effect = UserEmailAlreadyExists
+
+    response = client.post("/users", json=mock_user_json)
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Email already exists"}
