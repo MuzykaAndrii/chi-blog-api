@@ -160,11 +160,19 @@ def test_delete_user_not_found(user_service: UserService) -> None:
         user_service.delete_user(999)
 
 
-def test_user_has_permission_success(
-    user_service: UserService, mock_user_read: MagicMock
+@pytest.mark.parametrize(
+    "permission_name, is_access_granted",
+    (
+        ["articles.can_edit", True],
+        ["users.can_delete", False],
+    ),
+)
+def test_user_has_permission(
+    permission_name: str,
+    is_access_granted: bool,
+    user_service: UserService,
+    mock_user_read: MagicMock,
 ) -> None:
-    permission_name = "articles.can_edit"
-
     mock_role = MagicMock()
     perm_edit = MagicMock()
     perm_edit.name = "articles.can_edit"
@@ -177,7 +185,7 @@ def test_user_has_permission_success(
 
     result = user_service.user_has_permission(mock_user_read.id, permission_name)
 
-    assert result is True
+    assert result == is_access_granted
     user_service._dao.get_with_permissions.assert_called_once_with(mock_user_read.id)
 
 
