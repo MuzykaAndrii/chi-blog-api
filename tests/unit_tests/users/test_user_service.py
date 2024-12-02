@@ -151,3 +151,10 @@ def test_delete_user_success(user_service: UserService) -> None:
     user_service.delete_user(user_id)
 
     user_service._dao.delete.assert_called_once_with(user_id)
+
+
+def test_delete_user_not_found(user_service: UserService) -> None:
+    user_service._dao.get_one.return_value = None
+
+    with pytest.raises(UserNotFound):
+        user_service.delete_user(999)
