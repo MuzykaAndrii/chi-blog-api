@@ -129,3 +129,19 @@ def test_update_user(
     assert response.json == mock_user
 
     user_service.update_user.assert_called_once_with(user_id, mock_user_json)
+
+
+@patch("app.users.routes.user_service")
+def test_delete_user(
+    user_service: UserService,
+    client: FlaskClient,
+):
+    user_id = 1
+    user_service.delete_user.return_value = None
+
+    response = client.delete(f"/users/{user_id}")
+
+    assert response.status_code == 204
+    assert response.data == b""
+
+    user_service.delete_user.assert_called_once_with(user_id)
