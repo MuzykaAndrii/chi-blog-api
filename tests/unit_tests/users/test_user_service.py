@@ -158,3 +158,24 @@ def test_delete_user_not_found(user_service: UserService) -> None:
 
     with pytest.raises(UserNotFound):
         user_service.delete_user(999)
+
+
+def test_user_has_permission_success(
+    user_service: UserService, mock_user_read: MagicMock
+) -> None:
+    permission_name = "articles.can_edit"
+
+    mock_role = MagicMock()
+    perm_edit = MagicMock()
+    perm_edit.name = "articles.can_edit"
+    perm_delete = MagicMock()
+    perm_delete.name = "articles.can_delete"
+    mock_role.permissions = [perm_edit, perm_delete]
+
+    mock_user_read.role = mock_role
+    user_service._dao.get_with_permissions.return_value = mock_user_read
+
+    result = user_service.user_has_permission(mock_user_read.id, permission_name)
+
+    assert result is True
+    user_service._dao.get_with_permissions.assert_called_once_with(mock_user_read.id)
