@@ -2,13 +2,14 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from app.rbac.exceptions import RoleNotFound
 from app.rbac.services.role import RoleService
 from app.rbac.dao.role import RoleDAO
 from app.rbac.dao.permission import PermissionDAO
 
 
 @pytest.fixture
-def mock_role_service() -> RoleService:
+def role_service() -> RoleService:
     return RoleService(
         role_dao=MagicMock(RoleDAO),
         perm_dao=MagicMock(PermissionDAO),
@@ -44,10 +45,20 @@ def mock_role(mock_role_data: dict) -> MagicMock:
     return role
 
 
-def test_get_role_by_id_success(mock_role_service: RoleService, mock_role: MagicMock):
-    mock_role_service._role_dao.get_one.return_value = mock_role
+def test_get_role_by_id_success(role_service: RoleService, mock_role: MagicMock):
+    role_service._role_dao.get_one.return_value = mock_role
 
-    result = mock_role_service.get_role_by_id(mock_role.id)
+    result = role_service.get_role_by_id(mock_role.id)
 
     assert result.name == mock_role.name
-    mock_role_service._role_dao.get_one.assert_called_once_with(mock_role.id)
+    role_service._role_dao.get_one.assert_called_once_with(mock_role.id)
+
+
+def test_get_role_by_id_not_found(role_service: RoleService):
+    role_id = 999
+    role_service._role_dao.get_one.return_value = None
+
+    with pytest.raises(RoleNotFound):
+        role_service.get_role_by_id(role_id)
+
+    role_service._role_dao.get_one.assert_called_once_with(role_id)
