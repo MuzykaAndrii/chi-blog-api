@@ -101,3 +101,21 @@ def test_get_user_articles(
     assert response.status_code == 200
     assert response.json == mock_articles
     articles_service.get_user_articles.assert_called_once_with(user_id)
+
+
+@patch("app.articles.routes.articles_service")
+def test_get_article_by_id(
+    articles_service: ArticleService,
+    client: FlaskClient,
+    mock_article: dict,
+    mock_article_json: str,
+):
+    article_id = mock_article["id"]
+    articles_service.get_article_by_id.return_value = mock_article_json
+
+    response = client.get(f"/articles/{article_id}")
+
+    assert response.status_code == 200
+    assert response.json == mock_article
+
+    articles_service.get_article_by_id.assert_called_once_with(article_id)
