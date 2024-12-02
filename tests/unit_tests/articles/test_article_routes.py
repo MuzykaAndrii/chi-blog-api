@@ -82,3 +82,22 @@ def test_get_articles_list_with_search(
     assert response.status_code == 200
     assert response.json == mock_articles
     articles_service.search_articles.assert_called_once_with(search_q)
+
+
+@patch("app.articles.routes.articles_service")
+def test_get_user_articles(
+    articles_service: ArticleService,
+    client: FlaskClient,
+    mock_article: dict,
+):
+    user_id = 1
+    mock_articles = [mock_article]
+    mock_articles_json = json.dumps(mock_articles)
+
+    articles_service.get_user_articles.return_value = mock_articles_json
+
+    response = client.get(f"/users/{user_id}/articles")
+
+    assert response.status_code == 200
+    assert response.json == mock_articles
+    articles_service.get_user_articles.assert_called_once_with(user_id)
