@@ -93,3 +93,21 @@ def test_add_permission_success(role_dao: RoleDAO):
     mock_session.merge.assert_any_call(permission)
     mock_session.refresh.assert_called_once_with(role, attribute_names=["permissions"])
     mock_session.commit.assert_called_once()
+
+
+def test_remove_permission_success(role_dao: RoleDAO):
+    role = Role(id=1)
+    permission = Permission(id=1)
+    mock_session = MagicMock()
+    role_dao._sf.return_value.__enter__.return_value = mock_session
+    mock_session.merge.side_effect = lambda x: x
+
+    role.permissions.add(permission)
+
+    updated_role = role_dao.remove_permission(role, permission)
+
+    assert permission not in updated_role.permissions
+    mock_session.merge.assert_any_call(role)
+    mock_session.merge.assert_any_call(permission)
+    mock_session.refresh.assert_called_once_with(role, attribute_names=["permissions"])
+    mock_session.commit.assert_called_once()
