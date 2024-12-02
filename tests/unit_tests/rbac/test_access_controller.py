@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
 
+from flask import Flask
 import pytest
 
 from app.rbac.rbac import RoleBasedAccessController
@@ -60,3 +61,22 @@ def test_permission_required_authenticated_and_authorized(
     mock_permission_checker.user_has_permission.assert_called_once_with(
         user.id, permission_name
     )
+
+
+def test_permission_required_not_authenticated(
+    access_controller: RoleBasedAccessController,
+    mock_current_user_getter: MagicMock,
+    test_app: Flask,
+):
+    mock_current_user_getter.get_current_user.return_value = None
+
+    @access_controller.permission_required("roles.can_view")
+    def mock_route():
+        return "Success", 200
+
+    with test_app.test_request_context():
+        response, status_code = mock_route()
+
+    assert status_code == 401
+    assert response.json == {"error": "not authenticated"}
+    mock_current_user_getter.get_current_user.assert_called_once()
