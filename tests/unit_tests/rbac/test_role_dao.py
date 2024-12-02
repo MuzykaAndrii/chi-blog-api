@@ -13,6 +13,11 @@ def role_dao() -> RoleDAO:
 
 
 @pytest.fixture
+def mock_role_create_data() -> dict:
+    return {"name": "admin"}
+
+
+@pytest.fixture
 def mock_role():
     mock_role = MagicMock()
     mock_role.id = 1
@@ -45,3 +50,21 @@ def test_get_all_roles(role_dao: RoleDAO, mock_role: MagicMock):
     assert result[1].name == mock_role.name
 
     mock_session.scalars.assert_called_once()
+
+
+def test_create_role(
+    role_dao: RoleDAO,
+    mock_role: MagicMock,
+    mock_role_create_data: dict,
+):
+    mock_session = MagicMock()
+    role_dao._sf.return_value.__enter__.return_value = mock_session
+
+    mock_session.add.return_value = None
+    mock_session.commit.return_value = None
+
+    result = role_dao.create(**mock_role_create_data)
+
+    mock_session.add.assert_called_once()
+    mock_session.commit.assert_called_once()
+    assert result.name == mock_role.name
