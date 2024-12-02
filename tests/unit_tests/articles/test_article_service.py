@@ -75,9 +75,20 @@ def test_create_article_success(
     article_service._dao.create.assert_called_once_with(**mock_article_data, owner_id=1)
 
 
-def test_create_article_missing_field(article_service: ArticleService) -> None:
+def test_create_article_missing_field(article_service: ArticleService):
     creator = MagicMock(id=1)
     article_data = {"body": "body without the tittle"}
 
     with pytest.raises(ValueError):
         article_service.create_article(creator, article_data)
+
+
+def test_delete_article_success(article_service: ArticleService) -> None:
+    article_id = 1
+
+    article_service._dao.get_one.return_value = MagicMock(id=article_id)
+    article_service._dao.delete.return_value = None
+
+    article_service.delete_article(article_id)
+
+    article_service._dao.delete.assert_called_once_with(article_id)
