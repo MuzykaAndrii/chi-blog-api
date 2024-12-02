@@ -174,3 +174,17 @@ def test_get_role_permissions_role_not_found(role_service: RoleService):
         role_id,
         load_permissions=True,
     )
+
+
+def test_assign_permission_role_not_found(role_service: RoleService):
+    permission_id = 3
+    role_id = 999
+    role_service._role_dao.get_one.return_value = None
+
+    with pytest.raises(RoleNotFound):
+        role_service.assign_permission_to_role(role_id, permission_id)
+
+    role_service._role_dao.get_one.assert_called_once_with(
+        role_id,
+        load_permissions=True,
+    )
