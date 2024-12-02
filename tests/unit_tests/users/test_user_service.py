@@ -1,8 +1,9 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from sqlalchemy.exc import IntegrityError
 
+from app.users.dto import UserLoginDTO
 from app.users.exceptions import (
     UserEmailAlreadyExists,
     UserNotFound,
@@ -209,3 +210,19 @@ def test_user_has_permission_not_found(user_service: UserService) -> None:
 
     with pytest.raises(UserNotFound):
         user_service.user_has_permission(999, "articles.can_edit")
+
+
+def test_get_by_credentials_success(
+    user_service: UserService, mock_user_read: MagicMock
+):
+    creds = {"email": "andrymyzik@gmail.com", "password": "1234567890"}
+    user_service._dao.get_by_email.return_value = mock_user_read
+
+    with patch.object(UserLoginDTO, "verify_pwd", return_value=None) as mock_pwd_check:
+        result = user_service.get_by_credentials(creds)
+
+        mock_pwd_check.assert_called_once_with(mock_user_read.password_hash)
+
+    assert result.username == mock_user_read.username
+    assert result.email == mock_user_read.email
+    user_service._dao.get_by_email.assert_called_once_with(creds["email"])
