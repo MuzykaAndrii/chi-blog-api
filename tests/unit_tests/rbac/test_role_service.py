@@ -1,3 +1,4 @@
+from copy import deepcopy
 from unittest.mock import MagicMock
 
 import pytest
@@ -19,7 +20,7 @@ def role_service() -> RoleService:
 
 
 @pytest.fixture
-def mock_role_data() -> dict:
+def mock_role_read_data() -> dict:
     return {
         "id": 1,
         "name": "admin",
@@ -31,27 +32,32 @@ def mock_role_data() -> dict:
 
 
 @pytest.fixture
-def mock_role(mock_role_data: dict) -> MagicMock:
+def mock_role_read(mock_role_read_data: dict) -> MagicMock:
     role = MagicMock()
 
-    role.id = mock_role_data["id"]
-    role.name = mock_role_data["name"]
+    role.id = mock_role_read_data["id"]
+    role.name = mock_role_read_data["name"]
 
     role.permissions.return_value = [
-        MagicMock(**mock_role_data["permissions"][0]),
-        MagicMock(**mock_role_data["permissions"][1]),
+        MagicMock(**mock_role_read_data["permissions"][0]),
+        MagicMock(**mock_role_read_data["permissions"][1]),
     ]
 
     return role
 
 
-def test_get_role_by_id_success(role_service: RoleService, mock_role: MagicMock):
-    role_service._role_dao.get_one.return_value = mock_role
+@pytest.fixture
+def mock_role_create_data() -> dict:
+    return {"name": "admin"}
 
-    result = role_service.get_role_by_id(mock_role.id)
 
-    assert result.name == mock_role.name
-    role_service._role_dao.get_one.assert_called_once_with(mock_role.id)
+def test_get_role_by_id_success(role_service: RoleService, mock_role_read: MagicMock):
+    role_service._role_dao.get_one.return_value = mock_role_read
+
+    result = role_service.get_role_by_id(mock_role_read.id)
+
+    assert result.name == mock_role_read.name
+    role_service._role_dao.get_one.assert_called_once_with(mock_role_read.id)
 
 
 def test_get_role_by_id_not_found(role_service: RoleService):
@@ -62,3 +68,16 @@ def test_get_role_by_id_not_found(role_service: RoleService):
         role_service.get_role_by_id(role_id)
 
     role_service._role_dao.get_one.assert_called_once_with(role_id)
+
+
+def test_create_role_success(
+    role_service: RoleService,
+    mock_role_read: MagicMock,
+    mock_role_create_data: dict,
+):
+    role_service._role_dao.create.return_value = mock_role_read
+
+    result = role_service.create_role(mock_role_create_data)
+
+    assert result.name == mock_role_read.name
+    role_service._role_dao.create.assert_called_once_with(**mock_role_create_data)
