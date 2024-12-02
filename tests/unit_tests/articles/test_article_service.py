@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -123,12 +123,16 @@ def test_get_user_articles_success(article_service: ArticleService) -> None:
 def test_update_article_success(
     article_service: ArticleService, mock_article: MagicMock, mock_article_data: dict
 ) -> None:
-    article_id = 1
-    article_service._get_or_raise.return_value = None
-    article_service._dao.update.return_value = mock_article
+    with patch.object(article_service, "_get_or_raise", return_value=None):
+        article_id = 1
+        article_service._dao.update.return_value = mock_article
 
-    result = article_service.update_article(article_id, mock_article_data)
+        result = article_service.update_article(article_id, mock_article_data)
 
-    assert result.title == mock_article_data["title"]
-    assert result.body == mock_article_data["body"]
-    article_service._dao.update.assert_called_once_with(article_id, **mock_article_data)
+        assert result.title == mock_article_data["title"]
+        assert result.body == mock_article_data["body"]
+
+        article_service._dao.update.assert_called_once_with(
+            article_id, **mock_article_data
+        )
+        article_service._get_or_raise.assert_called_once_with(article_id)
