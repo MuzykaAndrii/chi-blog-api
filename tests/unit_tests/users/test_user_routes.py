@@ -1,3 +1,4 @@
+import functools
 from unittest.mock import MagicMock, patch
 
 from flask.testing import FlaskClient
@@ -10,22 +11,25 @@ from app.users.services import UserService
 class MockRBAC:
     def permission_required(self, permission):
         def decorator(func):
-            return func
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+
+            return wrapper
 
         return decorator
 
 
 @pytest.fixture
-def app() -> Flask:
+def app():
     app = Flask(__name__)
 
-    with patch("app.users.routes.user_service", MagicMock(UserService)):
-        with patch("app.users.routes.rbac", MockRBAC()):
-            from app.users.routes import router
+    with patch("app.app.rbac", MockRBAC()):
+        from app.users.routes import router
 
-            app.register_blueprint(router)
+        app.register_blueprint(router)
 
-    return app
+        yield app
 
 
 @pytest.fixture
@@ -90,3 +94,20 @@ def test_get_user_by_id(
     assert response.json == mock_user
 
     user_service.get_user_by_id.assert_called_once_with(1)
+
+
+@patch("app.users.routes.user_service")
+def test_create_user(
+    user_service: UserService,
+    client: FlaskClient,
+    mock_user: dict,
+    mock_user_json: str,
+):
+    user_service.create.return_value = mock_user_json
+
+    response = client.post("/users", json=mock_user_json)
+
+    assert response.status_code == 201
+    assert response.json == mock_user
+
+    user_service.create.assert_called_once_with(mock_user_json)
