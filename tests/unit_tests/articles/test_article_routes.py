@@ -63,3 +63,22 @@ def test_get_articles_list_without_search(
 
     assert response.status_code == 200
     assert response.json == mock_articles
+
+
+@patch("app.articles.routes.articles_service")
+def test_get_articles_list_with_search(
+    articles_service: ArticleService,
+    client: FlaskClient,
+    mock_article: dict,
+):
+    search_q = "python"
+    mock_articles = [mock_article]
+    mock_articles_json = json.dumps(mock_articles)
+
+    articles_service.search_articles.return_value = mock_articles_json
+
+    response = client.get(f"/articles?query={search_q}")
+
+    assert response.status_code == 200
+    assert response.json == mock_articles
+    articles_service.search_articles.assert_called_once_with(search_q)
