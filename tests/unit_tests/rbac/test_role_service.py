@@ -109,3 +109,13 @@ def test_update_role_success(
         mock_role_read.id,
         **mock_role_create_data,
     )
+
+
+def test_update_role_not_found(role_service: RoleService, mock_role_create_data: dict):
+    role_id = 999
+    role_service._role_dao.get_one.return_value = None
+
+    with pytest.raises(RoleNotFound):
+        role_service.update_role(role_id, mock_role_create_data)
+
+    role_service._role_dao.get_one.assert_called_once_with(role_id)
