@@ -92,3 +92,13 @@ def test_delete_article_success(article_service: ArticleService) -> None:
     article_service.delete_article(article_id)
 
     article_service._dao.delete.assert_called_once_with(article_id)
+
+
+def test_delete_article_not_found(article_service: ArticleService) -> None:
+    article_id = 999
+    article_service._dao.get_one.return_value = None
+
+    with pytest.raises(ArticleNotFound):
+        article_service.delete_article(article_id)
+
+    article_service._dao.get_one.assert_called_once_with(article_id)
