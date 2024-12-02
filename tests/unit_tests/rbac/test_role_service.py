@@ -161,3 +161,16 @@ def test_get_role_permissions_success(
     role_service._role_dao.get_one.assert_called_once_with(
         mock_role_read.id, load_permissions=True
     )
+
+
+def test_get_role_permissions_role_not_found(role_service: RoleService):
+    role_id = 999
+    role_service._role_dao.get_one.return_value = None
+
+    with pytest.raises(RoleNotFound):
+        role_service.get_role_permissions(role_id)
+
+    role_service._role_dao.get_one.assert_called_once_with(
+        role_id,
+        load_permissions=True,
+    )
