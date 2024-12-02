@@ -121,3 +121,14 @@ def test_create_user_field_exists(
 
     with pytest.raises(expected_exception):
         user_service.create(mock_user_create_data)
+
+
+def test_update_user_success(
+    user_service: UserService, mock_user_read: MagicMock, mock_user_create_data: dict
+):
+    user_service._dao.update.return_value = mock_user_read
+
+    result = user_service.update_user(mock_user_read.id, mock_user_create_data)
+
+    assert result.username == mock_user_read.username
+    assert result.email == mock_user_read.email
