@@ -1,25 +1,6 @@
 version: "3.8"
 services:
 
-  db:
-    image: postgres:15.6-alpine
-    container_name: blog-db
-    restart: always
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_USER}"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-      start_period: 80s
-    volumes:
-      - blog-pgdb-data:/var/lib/postgresql/data
-    networks:
-      - blog-network
-
   blog:
     build:
       context: .
@@ -29,9 +10,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - blog-network
     command: bash -c "./scripts/migrate.sh && ./scripts/runprod.sh"
@@ -51,5 +29,3 @@ networks:
   blog-network:
     driver: bridge
 
-volumes:
-  blog-pgdb-data:
