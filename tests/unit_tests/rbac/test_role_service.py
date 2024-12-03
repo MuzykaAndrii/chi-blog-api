@@ -57,7 +57,9 @@ def test_get_role_by_id_success(role_service: RoleService, mock_role_read: Magic
     result = role_service.get_role_by_id(mock_role_read.id)
 
     assert result.name == mock_role_read.name
-    role_service._role_dao.get_one.assert_called_once_with(mock_role_read.id)
+    role_service._role_dao.get_one.assert_called_once_with(
+        mock_role_read.id, load_permissions=True
+    )
 
 
 def test_get_role_by_id_not_found(role_service: RoleService):
@@ -67,7 +69,9 @@ def test_get_role_by_id_not_found(role_service: RoleService):
     with pytest.raises(RoleNotFound):
         role_service.get_role_by_id(role_id)
 
-    role_service._role_dao.get_one.assert_called_once_with(role_id)
+    role_service._role_dao.get_one.assert_called_once_with(
+        role_id, load_permissions=True
+    )
 
 
 def test_create_role_success(
@@ -118,7 +122,9 @@ def test_update_role_not_found(role_service: RoleService, mock_role_create_data:
     with pytest.raises(RoleNotFound):
         role_service.update_role(role_id, mock_role_create_data)
 
-    role_service._role_dao.get_one.assert_called_once_with(role_id)
+    role_service._role_dao.get_one.assert_called_once_with(
+        role_id, load_permissions=True
+    )
 
 
 def test_delete_role_success(role_service: RoleService):
