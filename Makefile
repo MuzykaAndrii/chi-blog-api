@@ -10,8 +10,11 @@ cov:
 up:
 	docker compose --env-file ./secrets/.env up --build -d
 
+prod:
+	docker compose -f docker-compose-prod.yml --env-file ./secrets/.env up --build -d
+
 down:
-	docker compose --env-file ./secrets/.env down
+	docker compose -f docker-compose.yml -f docker-compose-prod.yml --env-file ./secrets/.env down
 
 logs:
 	docker logs --follow blog-api

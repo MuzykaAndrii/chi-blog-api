@@ -1,8 +1,17 @@
 FROM python:3.11-slim as requirements-stage
+ARG mode=dev
 WORKDIR /tmp
+
 RUN pip install poetry-plugin-export
 COPY ./pyproject.toml ./poetry.lock* ./
-RUN poetry export --with dev --without-hashes --format=requirements.txt > ./requirements.txt
+
+RUN if [ "$mode" = "dev" ]; then \
+        poetry export --with dev --without-hashes --format=requirements.txt > requirements.txt; \
+    elif [ "$mode" = "prod" ]; then \
+        poetry export --with prod --without-hashes --format=requirements.txt > requirements.txt; \
+    else \
+        poetry export --without-hashes --format=requirements.txt > requirements.txt; \
+    fi
 
 
 FROM python:3.11

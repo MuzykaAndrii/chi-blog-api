@@ -24,7 +24,7 @@ services:
     build:
       context: .
       args:
-        mode: dev
+        mode: prod
     container_name: blog-api
     restart: always
     ports:
@@ -32,9 +32,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - blog-network
+    command: bash -c "./scripts/migrate.sh && ./scripts/runprod.sh"
+
+  nginx:
+    image: nginx:alpine
+    container_name: blog-nginx
+    restart: always
+    ports:
+      - 80:80
+    # depends_on:
+    #   blog:
+    #     condition: service_healthy
     volumes:
-      - ./app:/blog/app
-      - ./tests:/blog/tests
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - blog-network
 
