@@ -9,6 +9,7 @@ omit =
     */swagger/*
     ./app/app.py
     ./app/config.py
+    ./app/fake_data.py
 
 [report]
 show_missing = True

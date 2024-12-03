@@ -15,3 +15,6 @@ down:
 
 logs:
 	docker logs --follow blog-api
+
+fake:
+	docker exec -t blog-api python3 fill_db.py
