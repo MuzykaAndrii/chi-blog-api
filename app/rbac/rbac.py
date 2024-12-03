@@ -29,14 +29,14 @@ class RoleBasedAccessController:
                     return jsonify({"error": "not authenticated"}), 401
 
                 if unless and unless(current_user, *args, **kwargs):
-                    return router_func(*args, **kwargs)
+                    return router_func(current_user, *args, **kwargs)
 
                 if not self.permission_checker.user_has_permission(
                     current_user.id, permission
                 ):
                     return jsonify({"error": "Permission denied"}), 403
 
-                return router_func(*args, **kwargs)
+                return router_func(current_user, *args, **kwargs)
 
             return wrapper
 
