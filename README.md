@@ -170,18 +170,19 @@ The implemented application conforms following structure:
 Used JWT access token with cookie transport: [auth app](https://github.com/MuzykaAndrii/chi-blog-api/tree/main/app/auth)
 #### Authorization system
 Implemented as Role Based Access Control: [rbac](https://github.com/MuzykaAndrii/chi-blog-api/tree/main/app/rbac)
-#### User operations (CRUD)
+#### User operations
 Implemented in package: [users](https://github.com/MuzykaAndrii/chi-blog-api/tree/main/app/users)
-#### Articles operations (CRUD)
+#### Articles operations
 Implemented in package: [articles](https://github.com/MuzykaAndrii/chi-blog-api/tree/main/app/articles)
 #### Database population script
 Implementted in file: [fill_db](https://github.com/MuzykaAndrii/chi-blog-api/blob/main/fill_db.py)
 #### Unit tests
 Implemented in folder: [tests/unit_tests](https://github.com/MuzykaAndrii/chi-blog-api/tree/main/tests/unit_tests)
+Coverage at level: 83%
 #### Docker setup
 Backend dockerfile: [Dockerfile](https://github.com/MuzykaAndrii/chi-blog-api/blob/main/Dockerfile) 
-Dev compose: [docker-compose](https://github.com/MuzykaAndrii/chi-blog-api/blob/main/docker-compose.yml)
-Prod compose: [docker-compose-prod](https://github.com/MuzykaAndrii/chi-blog-api/blob/main/docker-compose-prod.yml)
+dev compose: [docker-compose](https://github.com/MuzykaAndrii/chi-blog-api/blob/main/docker-compose.yml)
+prod compose: [docker-compose-prod](https://github.com/MuzykaAndrii/chi-blog-api/blob/main/docker-compose-prod.yml)
 #### Postman collection
 Avaliable in: [tests/postman](https://github.com/MuzykaAndrii/chi-blog-api/tree/main/tests/postman)
 #### Deploy
@@ -192,7 +193,7 @@ Implemented with GitHub Actions in file: [workflows/ci](https://github.com/Muzyk
 
 ## Possible improvements
 
-There are some imprrovements what good to carry out:
+There are some improvements what good to carry out:
 - Use name field in Role and Permission models as natural Primary Key instead of Id
 - Split swagger docs to separate files
 - Decouple permission and roles in rbac package
