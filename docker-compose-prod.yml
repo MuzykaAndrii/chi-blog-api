@@ -42,9 +42,6 @@ services:
     restart: always
     ports:
       - 80:80
-    # depends_on:
-    #   blog:
-    #     condition: service_healthy
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
