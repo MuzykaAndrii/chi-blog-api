@@ -32,7 +32,7 @@ class RoleService:
 
     def get_role_by_id(self, role_id: int) -> RoleWithPermsReadDTO:
         """Get a single role by ID."""
-        role = self._get_or_raise(role_id)
+        role = self._get_or_raise(role_id, load_permissions=True)
 
         return RoleWithPermsReadDTO.model_validate(role)
 
@@ -46,7 +46,7 @@ class RoleService:
 
     def update_role(self, role_id: int, role_data: dict) -> RoleReadDTO:
         """Update a role."""
-        self._get_or_raise(role_id)
+        self._get_or_raise(role_id, load_permissions=True)
 
         try:
             updated_role = self._role_dao.update(role_id, **role_data)

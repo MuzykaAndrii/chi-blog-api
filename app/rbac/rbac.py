@@ -36,7 +36,7 @@ class RoleBasedAccessController:
                 ):
                     return jsonify({"error": "Permission denied"}), 403
 
-                return router_func(current_user, *args, **kwargs)
+                return router_func(*args, **kwargs)
 
             return wrapper
 
