@@ -57,7 +57,7 @@ def create_article(current_user: UserReadDTO):
 @router.delete("/articles/<int:article_id>")
 @rbac.permission_required("articles.can_delete", unless=user_is_article_owner)
 @swag_from(docs.DELETE_ARTICLE)
-def delete_article(article_id: int):
+def delete_article(current_user: UserReadDTO, article_id: int):
     articles_service.delete_article(article_id)
     return DtoResponse(status=204)
 
@@ -65,6 +65,6 @@ def delete_article(article_id: int):
 @router.put("/articles/<int:article_id>")
 @rbac.permission_required("articles.can_update", unless=user_is_article_owner)
 @swag_from(docs.PUT_ARTICLE)
-def update_article(article_id: int):
+def update_article(current_user: UserReadDTO, article_id: int):
     updated_article = articles_service.update_article(article_id, request.get_json())
     return DtoResponse(updated_article, status=200)

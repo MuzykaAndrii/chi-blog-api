@@ -50,7 +50,7 @@ def test_permission_required_authenticated_and_authorized(
     mock_permission_checker.user_has_permission.return_value = True
 
     @access_controller.permission_required(permission_name)
-    def mock_route():
+    def mock_route(*args, **kwargs):
         return "ok", 200
 
     result, status_code = mock_route()
@@ -71,7 +71,7 @@ def test_permission_required_not_authenticated(
     mock_current_user_getter.get_current_user.return_value = None
 
     @access_controller.permission_required("roles.can_view")
-    def mock_route():
+    def mock_route(*args, **kwargs):
         return "Success", 200
 
     with test_app.test_request_context():
@@ -94,7 +94,7 @@ def test_permission_required_not_authorized(
     mock_permission_checker.user_has_permission.return_value = False
 
     @access_controller.permission_required(permission_name)
-    def mock_route():
+    def mock_route(*args, **kwargs):
         return "Success", 200
 
     with test_app.test_request_context():
